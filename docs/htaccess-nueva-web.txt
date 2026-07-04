@@ -1,0 +1,17 @@
+# Copiar como .htaccess dentro de public_html/nueva_web
+RewriteEngine On
+RewriteBase /nueva_web/
+
+# API moderna: /nueva_web/api/... -> backend Slim actual
+RewriteCond %{REQUEST_URI} ^/nueva_web/api [NC]
+RewriteRule ^api/?(.*)$ /nueva_web/api/public/index.php [L,QSA]
+
+# Archivos estaticos del build Vue
+RewriteCond %{REQUEST_FILENAME} -f
+RewriteRule ^ - [L]
+
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# SPA fallback
+RewriteRule ^ index.html [L]

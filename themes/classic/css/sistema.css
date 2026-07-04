@@ -1,0 +1,15 @@
+.articulo {
+	background: #fff;
+	border: 1px solid #e2e8f0;
+	border-radius: 8px;
+	min-height: 300px;
+	max-height: 320px;
+	padding: 16px;
+	margin-bottom: 16px;
+	overflow: hidden;
+	transition: box-shadow 0.15s;
+}
+
+.articulo:hover {
+	box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}

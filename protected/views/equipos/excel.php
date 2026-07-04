@@ -1,0 +1,50 @@
+<?php
+if(isset($jugadores)){
+	$num = 1;
+	?>
+	<h5>ASOCIACION DE FUTBOL DE VETERANOS, SUPER Y SENIOR "LDOR GRAL SAN MARTIN"</h5>
+	<table class="table" border="1">
+		<thead>
+			<th>Nº</th>
+			<th>Ing</th>
+			<th>Nombre</th>
+			<th>Clase</th>
+			<th>DNI</th>
+			<th>Observaciones</th>
+			<th>Certificado</th>
+			<th>Firmo lista</th>
+			<th>Fotocopia DNI</th>
+			<th>Declaracion Jurada</th>
+		</thead>
+	<?php
+	foreach ($jugadores as $jugador) {?>
+		<tr>
+			<td><?php echo $num++;?></td>
+			<td></td>
+			<td><?php echo htmlentities($jugador->Nombre, ENT_QUOTES,'UTF-8');?></td>
+			<td><?php echo CHtml::encode($jugador->Clase);?></td>
+			<td><?php echo CHtml::encode($jugador->DNI);?></td>
+			<td><?php echo CHtml::encode($jugador->Observacion);?></td>
+			<td><?php echo $jugador->certificado ? 'SI' : 'NO';?></td>
+			<td><?php echo $jugador->firma_lista ? 'SI' : 'NO';?></td>
+			<td><?php echo $jugador->fotocopia_dni ? 'SI' : 'NO';?></td>
+			<td><?php echo $jugador->dec_jurada ? 'SI' : 'NO';?></td>
+		</tr>
+			
+	
+	<?php }?>
+	</table>
+<?php 
+$data = array(
+    1 => array ('Name', 'Surname'),
+    array('Schwarz', 'Oliver'),
+    array('Test', 'Peter')
+);
+Yii::import('application.extensions.phpexcel.JPhpExcel');
+$xls = new JPhpExcel('UTF-8', false, 'Jugadores');
+//$xls->addArray($data);
+$xls->generateXML($equipo->Nombre);
+
+
+}
+?>
