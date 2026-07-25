@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Wireframes - Prode Veteranos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f5f7fa; padding: 40px 0; }
+        .wireframe-card { background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 30px; margin-bottom: 24px; max-width: 980px; margin-left: auto; margin-right: auto; }
+        .wireframe-link { display: block; padding: 16px 20px; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 8px; color: #063f2a; text-decoration: none; margin-bottom: 8px; }
+        .wireframe-link:hover { background: #eaf5ef; text-decoration: none; }
+        .wireframe-link h3 { margin: 0 0 4px; font-size: 18px; }
+        .wireframe-link p { margin: 0; color: #5d6d67; font-size: 14px; }
+        h1 { color: #063f2a; margin-bottom: 8px; }
+        .lede { color: #5d6d67; font-size: 16px; margin-bottom: 30px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="wireframe-card">
+            <h1>Prode Veteranos — Wireframes</h1>
+            <p class="lede">4 pantallas para validar la UX antes de tocar la DB. Son HTML estático, no requieren PHP ni Yii.</p>
+
+            <a class="wireframe-link" href="01-registro-login.html">
+                <h3>1 · Registro / Login</h3>
+                <p>Forms para que un visitante se cree una cuenta y entre. Independiente de Cruge.</p>
+            </a>
+            <a class="wireframe-link" href="02-panel-prediccion.html">
+                <h3>2 · Panel del usuario + Predicción de una fecha</h3>
+                <p>Una vez logueado: sus predicciones anteriores y el form para cargar/editar las de la fecha actual.</p>
+            </a>
+            <a class="wireframe-link" href="03-ranking.html">
+                <h3>3 · Ranking público</h3>
+                <p>Tabla de posiciones con todos los participantes, puntos, exactos, signos. Visible para cualquiera.</p>
+            </a>
+            <a class="wireframe-link" href="04-admin-cargar.html">
+                <h3>4 · Admin: Cargar resultados + Publicar fecha</h3>
+                <p>Pantalla de administración para meter los goles reales partido a partido y publicar la fecha.</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

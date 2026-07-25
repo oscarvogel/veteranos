@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prode · Ranking</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f5f7fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .navbar-veteranos { background: #0e2a3d; color: #fff; padding: 12px 0; margin-bottom: 30px; }
+        .navbar-veteranos a { color: #fff; text-decoration: none; }
+        .wireframe-bar { background: #fff3cd; color: #856404; padding: 8px 16px; text-align: center; font-size: 12px; border-bottom: 1px solid #ffeeba; }
+        .container-narrow { max-width: 980px; margin: 0 auto; padding: 0 16px; }
+
+        .header { background: linear-gradient(135deg, #078a48 0%, #063f2a 100%); color: #fff; border-radius: 12px; padding: 30px; margin-bottom: 24px; }
+        .header h1 { margin: 0 0 4px; font-size: 32px; font-weight: 800; }
+        .header p { margin: 0; opacity: 0.9; }
+
+        .podio { display: flex; gap: 12px; margin-bottom: 24px; }
+        .podio-card { flex: 1; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; text-align: center; }
+        .podio-card.oro { background: linear-gradient(180deg, #fef3c7 0%, #fcd34d 100%); border-color: #f59e0b; }
+        .podio-card.plata { background: linear-gradient(180deg, #f1f5f9 0%, #cbd5e1 100%); border-color: #94a3b8; }
+        .podio-card.bronce { background: linear-gradient(180deg, #fed7aa 0%, #fb923c 100%); border-color: #ea580c; }
+        .podio-card .pos { font-size: 36px; font-weight: 800; line-height: 1; }
+        .podio-card .name { font-weight: 700; margin: 8px 0 4px; }
+        .podio-card .puntos { font-size: 24px; font-weight: 800; color: #063f2a; }
+
+        .table { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+        .table thead th { background: #f8f9fa; color: #5d6d67; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid #e2e8f0; }
+        .table tbody tr.you { background: #eaf5ef; font-weight: 600; }
+        .pos-cell { font-weight: 800; color: #063f2a; width: 60px; }
+        .pos-1 { color: #f59e0b; }
+        .pos-2 { color: #94a3b8; }
+        .pos-3 { color: #ea580c; }
+    </style>
+</head>
+<body>
+    <div class="navbar-veteranos">
+        <div class="container-narrow">
+            <a href="index.html"><strong>← Wireframes Prode</strong></a> &nbsp; · &nbsp; <a href="#">Veteranos LGSM</a> &nbsp; <a href="#">Prode</a>
+        </div>
+    </div>
+    <div class="wireframe-bar">Wireframe — solo HTML. Lo que veas acá se va a parecer a la pantalla real.</div>
+
+    <div class="container-narrow">
+
+        <div class="header">
+            <h1>🏆 Ranking Prode</h1>
+            <p>Senior Clausura 2025 · 3 fechas jugadas · 12 participantes</p>
+        </div>
+
+        <div class="podio">
+            <div class="podio-card plata">
+                <div class="pos">2º</div>
+                <div class="name">Carlos M.</div>
+                <div class="puntos">21</div>
+            </div>
+            <div class="podio-card oro">
+                <div class="pos">1º</div>
+                <div class="name">Mariana P.</div>
+                <div class="puntos">25</div>
+            </div>
+            <div class="podio-card bronce">
+                <div class="pos">3º</div>
+                <div class="name">Diego R.</div>
+                <div class="puntos">19</div>
+            </div>
+        </div>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Pos</th>
+                    <th>Participante</th>
+                    <th style="text-align: center;">Puntos</th>
+                    <th style="text-align: center;">Exactos</th>
+                    <th style="text-align: center;">Signos</th>
+                    <th style="text-align: center;">Dif. gol</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="pos-cell pos-1">1</td>
+                    <td>Mariana P.</td>
+                    <td style="text-align: center;"><strong>25</strong></td>
+                    <td style="text-align: center;">4</td>
+                    <td style="text-align: center;">4</td>
+                    <td style="text-align: center;">+3</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell pos-2">2</td>
+                    <td>Carlos M.</td>
+                    <td style="text-align: center;"><strong>21</strong></td>
+                    <td style="text-align: center;">3</td>
+                    <td style="text-align: center;">4</td>
+                    <td style="text-align: center;">+5</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell pos-3">3</td>
+                    <td>Diego R.</td>
+                    <td style="text-align: center;"><strong>19</strong></td>
+                    <td style="text-align: center;">2</td>
+                    <td style="text-align: center;">5</td>
+                    <td style="text-align: center;">+2</td>
+                </tr>
+                <tr class="you">
+                    <td class="pos-cell">4</td>
+                    <td><strong>Juan P.</strong> &nbsp;<small style="color:#5d6d67">(vos)</small></td>
+                    <td style="text-align: center;"><strong>18</strong></td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: center;">5</td>
+                    <td style="text-align: center;">+1</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">5</td>
+                    <td>Laura G.</td>
+                    <td style="text-align: center;"><strong>17</strong></td>
+                    <td style="text-align: center;">2</td>
+                    <td style="text-align: center;">3</td>
+                    <td style="text-align: center;">+0</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">6</td>
+                    <td>Pedro S.</td>
+                    <td style="text-align: center;"><strong>15</strong></td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: center;">4</td>
+                    <td style="text-align: center;">-1</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">7</td>
+                    <td>Roberto A.</td>
+                    <td style="text-align: center;"><strong>14</strong></td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: center;">3</td>
+                    <td style="text-align: center;">+2</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">8</td>
+                    <td>Ana L.</td>
+                    <td style="text-align: center;"><strong>12</strong></td>
+                    <td style="text-align: center;">0</td>
+                    <td style="text-align: center;">4</td>
+                    <td style="text-align: center;">+0</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">9</td>
+                    <td>Federico T.</td>
+                    <td style="text-align: center;"><strong>11</strong></td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: center;">2</td>
+                    <td style="text-align: center;">-2</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">10</td>
+                    <td>Sofia M.</td>
+                    <td style="text-align: center;"><strong>9</strong></td>
+                    <td style="text-align: center;">0</td>
+                    <td style="text-align: center;">3</td>
+                    <td style="text-align: center;">-3</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">11</td>
+                    <td>Luis B.</td>
+                    <td style="text-align: center;"><strong>7</strong></td>
+                    <td style="text-align: center;">0</td>
+                    <td style="text-align: center;">2</td>
+                    <td style="text-align: center;">-1</td>
+                </tr>
+                <tr>
+                    <td class="pos-cell">12</td>
+                    <td>Patricia V.</td>
+                    <td style="text-align: center;"><strong>5</strong></td>
+                    <td style="text-align: center;">0</td>
+                    <td style="text-align: center;">1</td>
+                    <td style="text-align: center;">-2</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="color: #5d6d67; font-size: 13px; margin-top: 20px;">
+            <strong>Desempate:</strong> 1º Puntos totales, 2º Cantidad de resultados exactos, 3º Diferencia de gol acumulada.
+            Actualizado despu&eacute;s de cada fecha que el admin marca como "publicada".
+        </p>
+
+    </div>
+</body>
+</html>

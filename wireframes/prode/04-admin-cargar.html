@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Prode · Admin Cargar Resultados</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.4.1/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f5f7fa; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .navbar-veteranos { background: #0e2a3d; color: #fff; padding: 12px 0; margin-bottom: 30px; }
+        .navbar-veteranos a { color: #fff; text-decoration: none; }
+        .wireframe-bar { background: #fff3cd; color: #856404; padding: 8px 16px; text-align: center; font-size: 12px; border-bottom: 1px solid #ffeeba; }
+        .container-narrow { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+
+        .admin-bar { background: #fff3cd; border-left: 4px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; font-size: 14px; }
+        .well { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+        .well h2 { color: #063f2a; margin-top: 0; font-size: 20px; font-weight: 800; }
+        .form-group label { font-weight: 600; color: #5d6d67; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
+        .form-control { border-radius: 6px; }
+        .btn-primary { background: #078a48; border-color: #06753c; }
+        .btn-warning { background: #f59e0b; border-color: #d97706; color: #fff; }
+        .btn-warning:hover { background: #d97706; color: #fff; }
+
+        .table { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+        .table thead th { background: #f8f9fa; color: #5d6d67; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid #e2e8f0; }
+        .goles-cell { width: 80px; }
+        .goles-cell input { text-align: center; font-weight: 700; }
+        .libre { color: #b04141; font-style: italic; }
+        .pred-cell { font-size: 12px; color: #5d6d67; }
+        .pred-cell strong { color: #063f2a; }
+
+        .estado { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+        .estado.pendiente { background: #fef3c7; color: #92400e; }
+        .estado.cargado { background: #d1ecf1; color: #0c5460; }
+        .estado.publicado { background: #d4edda; color: #155724; }
+
+        .publish-area { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin-top: 16px; }
+    </style>
+</head>
+<body>
+    <div class="navbar-veteranos">
+        <div class="container-narrow">
+            <a href="index.html"><strong>← Wireframes Prode</strong></a> &nbsp; · &nbsp; <a href="#">Veteranos LGSM</a> &nbsp; <a href="#">Prode</a> &nbsp; <a href="#" style="color: #f59e0b;"><strong>Admin</strong></a> &nbsp; <span style="opacity:.7">(logueado: Oscar)</span>
+        </div>
+    </div>
+    <div class="wireframe-bar">Wireframe — solo HTML. Lo que veas acá se va a parecer a la pantalla real.</div>
+
+    <div class="container-narrow">
+
+        <div class="admin-bar">
+            🔒 <strong>Vista de admin</strong> — solo vos ves esto. Los dem&aacute;s usuarios ven su propio panel.
+        </div>
+
+        <div class="well">
+            <h2>Cargar resultados · Senior Clausura · Fecha 3</h2>
+            <p style="color: #5d6d67; margin-top: 0;">Ingres&aacute; los goles reales de cada partido. Cuando termines, pod&eacute;s previsualizar y publicar la fecha.</p>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Partido</th>
+                        <th style="text-align: center;" colspan="2">Resultado real</th>
+                        <th>Predicciones m&aacute;s comunes</th>
+                        <th style="text-align: center;">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Los Pumas Senior vs Union Senior</td>
+                        <td class="goles-cell"><input type="number" class="form-control" value="2" min="0"></td>
+                        <td class="goles-cell"><input type="number" class="form-control" value="1" min="0"></td>
+                        <td class="pred-cell">2-1 (3 pers) · 1-1 (2 pers) · 3-0 (1 pers)</td>
+                        <td style="text-align: center;"><span class="estado cargado">Cargado</span></td>
+                    </tr>
+                    <tr>
+                        <td>Club San Miguel vs Poli Rubro</td>
+                        <td class="goles-cell"><input type="number" class="form-control" value="0" min="0"></td>
+                        <td class="goles-cell"><input type="number" class="form-control" value="2" min="0"></td>
+                        <td class="pred-cell">1-0 (4 pers) · 0-1 (2 pers) · 2-1 (2 pers)</td>
+                        <td style="text-align: center;"><span class="estado cargado">Cargado</span></td>
+                    </tr>
+                    <tr>
+                        <td>Victoria Senior vs Garuhape</td>
+                        <td class="goles-cell"><input type="number" class="form-control" min="0"></td>
+                        <td class="goles-cell"><input type="number" class="form-control" min="0"></td>
+                        <td class="pred-cell">2-0 (3 pers) · 1-1 (3 pers) · 3-1 (2 pers)</td>
+                        <td style="text-align: center;"><span class="estado pendiente">Pendiente</span></td>
+                    </tr>
+                    <tr>
+                        <td>Stella Maris vs Club de Amigos</td>
+                        <td class="goles-cell"><input type="number" class="form-control" min="0"></td>
+                        <td class="goles-cell"><input type="number" class="form-control" min="0"></td>
+                        <td class="pred-cell">1-1 (5 pers) · 2-1 (2 pers) · 0-0 (2 pers)</td>
+                        <td style="text-align: center;"><span class="estado pendiente">Pendiente</span></td>
+                    </tr>
+                    <tr>
+                        <td>Centinela vs Club de Pesca PM</td>
+                        <td class="goles-cell"><input type="number" class="form-control" min="0"></td>
+                        <td class="goles-cell"><input type="number" class="form-control" min="0"></td>
+                        <td class="pred-cell">2-0 (4 pers) · 1-0 (3 pers) · 2-1 (2 pers)</td>
+                        <td style="text-align: center;"><span class="estado pendiente">Pendiente</span></td>
+                    </tr>
+                    <tr class="libre">
+                        <td>Tucangua <em>(libre)</em></td>
+                        <td style="text-align: center;">—</td>
+                        <td style="text-align: center;">—</td>
+                        <td class="pred-cell">No se cuenta</td>
+                        <td style="text-align: center;"><span class="estado cargado">N/A</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: space-between;">
+                <button class="btn btn-default">💾 Guardar borrador (sin publicar)</button>
+                <div>
+                    <button class="btn btn-default">👁 Previsualizar</button>
+                    <button class="btn btn-warning btn-lg">📢 Publicar fecha</button>
+                </div>
+            </div>
+
+            <div class="publish-area">
+                <strong>¿Qu&eacute; hace "Publicar"?</strong>
+                <ul style="margin: 8px 0 0; padding-left: 20px; color: #5d6d67; font-size: 14px;">
+                    <li>Calcula los puntos de las 12 predicciones seg&uacute;n los resultados cargados.</li>
+                    <li>Hace visible el ranking y el detalle de la fecha a todos los participantes.</li>
+                    <li>Si despu&eacute;s encontr&aacute;s un error, pod&eacute;s re-publicar y se recalcula.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="well">
+            <h2>Otras fechas</h2>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Torneo · Fecha</th>
+                        <th style="text-align: center;">Resultados</th>
+                        <th style="text-align: center;">Estado</th>
+                        <th style="text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Senior Clausura · Fecha 2</td>
+                        <td style="text-align: center;">7 / 7 cargados</td>
+                        <td style="text-align: center;"><span class="estado publicado">Publicada</span></td>
+                        <td style="text-align: center;"><a href="#">Ver</a> · <a href="#">Re-publicar</a></td>
+                    </tr>
+                    <tr>
+                        <td>Senior Clausura · Fecha 1</td>
+                        <td style="text-align: center;">7 / 7 cargados</td>
+                        <td style="text-align: center;"><span class="estado publicado">Publicada</span></td>
+                        <td style="text-align: center;"><a href="#">Ver</a> · <a href="#">Re-publicar</a></td>
+                    </tr>
+                    <tr>
+                        <td>Super Veteranos · Fecha 1</td>
+                        <td style="text-align: center;">0 / 9 cargados</td>
+                        <td style="text-align: center;"><span class="estado pendiente">Pendiente</span></td>
+                        <td style="text-align: center;"><a href="#">Cargar</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+</html>

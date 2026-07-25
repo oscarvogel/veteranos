@@ -50,18 +50,19 @@
 			<div class="collapse navbar-collapse" id="navbar-main">
 				<ul class="nav navbar-nav">
 					<li><a href="/">INICIO</a></li>
+					<li><a href="<?php echo Yii::app()->createUrl('/prode/index')?>">🎯 Prode</a></li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Consultas <span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="<?php echo Yii::app()->createUrl('/posiciones/index')?>">Posiciones</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/posiciones/resultados')?>">Resultados</a></li>
+							<li><a href="<?php echo Yii::app()->createUrl('/posiciones/resultados', array('modo'=>'resumen'))?>">Resumen de Fecha</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/tarjetas/consulta')?>">Tarjetas</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/tarjetas/tarjetasequipo')?>">Tarjetas por Equipo</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/tarjetas/fairplay')?>">Juego Limpio</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/goles/goleador')?>">Goleadores</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/equipos/ListaBuenaFe')?>">Listas de Buena Fe</a></li>
-							<li><a href="<?php echo Yii::app()->createUrl('/site/fixtureSuper')?>">Fixture Super Veteranos</a></li>
-							<li><a href="<?php echo Yii::app()->createUrl('/fixture/ConsultaFixture')?>">Fixture del torneo</a></li>
+							<li><a href="<?php echo Yii::app()->createUrl('/site/fixture')?>">Fixture</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/fixture/ConsultaAsignaciones')?>">Canchas y arbitros</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/resoluciones/index')?>">Resoluciones</a></li>
 							<li><a href="<?php echo Yii::app()->createUrl('/jugador/historia')?>">Historia Jugador</a></li>
@@ -99,10 +100,17 @@
 								<li><a href="<?php echo Yii::app()->createUrl('/ingresos/admin')?>">Ingresos</a></li>
 							</ul>
 						</li>
-						<?php if(Yii::app()->user->checkAccess('action_ingresos_arqueoCaja') || Yii::app()->user->checkAccess('action_ingresos_create') || Yii::app()->user->checkAccess('action_ingresos_resumenMensual') || Yii::app()->user->checkAccess('action_conceptos_admin')): ?>
+						<?php $puedeCuotasSociales = Yii::app()->user->checkAccess('action_sociosCuota_equipo') || Yii::app()->user->checkAccess('action_ingresos_create') || Yii::app()->user->checkAccess('action_ingresos_admin'); ?>
+						<?php if(Yii::app()->user->checkAccess('action_ingresos_arqueoCaja') || Yii::app()->user->checkAccess('action_ingresos_create') || Yii::app()->user->checkAccess('action_ingresos_resumenMensual') || Yii::app()->user->checkAccess('action_conceptos_admin') || $puedeCuotasSociales || Yii::app()->user->checkAccess('action_sociosCuota_informe')): ?>
 						<li class="dropdown">
 							<a href="#" class="dropdown-toggle" data-toggle="dropdown">Caja <span class="caret"></span></a>
 							<ul class="dropdown-menu">
+								<?php if($puedeCuotasSociales): ?>
+									<li><a href="<?php echo Yii::app()->createUrl('/sociosCuota/equipo')?>">Cuotas sociales</a></li>
+								<?php endif; ?>
+								<?php if(Yii::app()->user->checkAccess('action_sociosCuota_informe') || $puedeCuotasSociales): ?>
+									<li><a href="<?php echo Yii::app()->createUrl('/sociosCuota/informe')?>">Informe cuotas sociales</a></li>
+								<?php endif; ?>
 								<?php if(Yii::app()->user->checkAccess('action_ingresos_create')): ?>
 									<li><a href="<?php echo Yii::app()->createUrl('/ingresos/create')?>">Registrar pago</a></li>
 								<?php endif; ?>
