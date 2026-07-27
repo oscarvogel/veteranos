@@ -11,7 +11,7 @@
         <?php endif; ?>
 
         <?php if ($lock):
-            $pp = $partidosFecha[0];
+            $pp = $partidos[0];
             $ayer = date('Y-m-d', strtotime($pp->Fecha . ' -1 day'));
             $ayerFmt = date('d/m/Y', strtotime($ayer));
         ?>
@@ -20,7 +20,7 @@
                 No se puede modificar el pron&oacute;stico. Se pod&iacute;a editar hasta el <?php echo $ayerFmt; ?>.
             </div>
         <?php else:
-            $pp = $partidosFecha[0];
+            $pp = $partidos[0];
             $ayer = date('d/m/Y', strtotime($pp->Fecha . ' -1 day'));
             $diaPartido = date('d/m/Y', strtotime($pp->Fecha));
         ?>
