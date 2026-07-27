@@ -39,16 +39,19 @@
                         <th style="width: 40px;"></th>
                         <th style="width: 90px; text-align: center;">Goles</th>
                         <th>Visitante</th>
+                        <th style="width: 110px; text-align: center;">Ayuda</th>
                     </tr>
                 </thead>
                 <tbody>
                     <?php foreach ($partidos as $p):
+                        $idFix = (int)$p->idFixture;
                         $esLibre = (int)$p->Visitante === 0;
                         $local = $p->local ? $p->local->Nombre : '?';
                         $visit = $p->visitante ? $p->visitante->Nombre : '?';
-                        $pred = isset($predPorFixture[(int)$p->idFixture]) ? $predPorFixture[(int)$p->idFixture] : null;
+                        $pred = isset($predPorFixture[$idFix]) ? $predPorFixture[$idFix] : null;
                         $gl = $pred ? (int)$pred->golesLocal : '';
                         $gv = $pred ? (int)$pred->golesVisitante : '';
+                        $prob = isset($probabilidades[$idFix]) ? $probabilidades[$idFix] : null;
                     ?>
                         <tr<?php echo $esLibre ? ' class="prode-libre"' : ''; ?>>
                             <td><?php echo CHtml::encode($local); ?></td>
@@ -57,7 +60,7 @@
                                     <span style="color:#b04141;">—</span>
                                 <?php else: ?>
                                     <input type="number" class="form-control prode-goles"
-                                        name="predicciones[<?php echo (int)$p->idFixture; ?>][golesLocal]"
+                                        name="predicciones[<?php echo $idFix; ?>][golesLocal]"
                                         min="0" max="20" value="<?php echo $gl; ?>"<?php echo $lock ? ' disabled' : ''; ?>>
                                 <?php endif; ?>
                             </td>
@@ -67,7 +70,7 @@
                                     <span style="color:#b04141;">—</span>
                                 <?php else: ?>
                                     <input type="number" class="form-control prode-goles"
-                                        name="predicciones[<?php echo (int)$p->idFixture; ?>][golesVisitante]"
+                                        name="predicciones[<?php echo $idFix; ?>][golesVisitante]"
                                         min="0" max="20" value="<?php echo $gv; ?>"<?php echo $lock ? ' disabled' : ''; ?>>
                                 <?php endif; ?>
                             </td>
@@ -78,7 +81,48 @@
                                     <?php echo CHtml::encode($visit); ?>
                                 <?php endif; ?>
                             </td>
+                            <td style="text-align: center;">
+                                <?php if ($esLibre || $prob === null): ?>
+                                    <span style="color:#94a3b8;font-size:12px;">—</span>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn-xs btn-default prode-ayuda-btn"
+                                        data-target="prode-ayuda-<?php echo $idFix; ?>"
+                                        title="Ver probabilidades estimadas">
+                                        📊 Ayuda
+                                    </button>
+                                <?php endif; ?>
+                            </td>
                         </tr>
+                        <?php if (!$esLibre && $prob !== null):
+                            $max = max($prob['local'], $prob['empate'], $prob['visitante']);
+                            $m = $prob['muestras'];
+                            $notaHist = $m['historico'] > 0
+                                ? "Hist&oacute;rico: {$m['historico']} partidos entre ellos (V{$m['hist_local']} / E{$m['hist_empate']} / V{$m['hist_visit']})."
+                                : "Sin partidos previos entre estos dos equipos.";
+                            $notaAct = "Rendimiento actual: local {$m['local_act']} partidos, visitante {$m['visit_act']} partidos.";
+                        ?>
+                            <tr class="prode-ayuda-row" id="prode-ayuda-<?php echo $idFix; ?>" style="display:none;">
+                                <td colspan="6" style="background: #f8f9fa; padding: 12px 16px;">
+                                    <div class="prode-ayuda-grid">
+                                        <div class="prode-ayuda-cell<?php echo $prob['local'] === $max ? ' prode-ayuda-top' : ''; ?>">
+                                            <div class="prode-ayuda-label">Local</div>
+                                            <div class="prode-ayuda-pct"><?php echo (int)$prob['local']; ?>%</div>
+                                        </div>
+                                        <div class="prode-ayuda-cell<?php echo $prob['empate'] === $max ? ' prode-ayuda-top' : ''; ?>">
+                                            <div class="prode-ayuda-label">Empate</div>
+                                            <div class="prode-ayuda-pct"><?php echo (int)$prob['empate']; ?>%</div>
+                                        </div>
+                                        <div class="prode-ayuda-cell<?php echo $prob['visitante'] === $max ? ' prode-ayuda-top' : ''; ?>">
+                                            <div class="prode-ayuda-label">Visitante</div>
+                                            <div class="prode-ayuda-pct"><?php echo (int)$prob['visitante']; ?>%</div>
+                                        </div>
+                                    </div>
+                                    <p style="font-size:11px;color:#5d6d67;margin:8px 0 0;">
+                                        <em><?php echo $notaHist; ?> <?php echo $notaAct; ?> C&aacute;lculo: 60% hist&oacute;rico + 40% rendimiento actual (con 10% de ventaja por local&iacute;a).</em>
+                                    </p>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </tbody>
             </table>
@@ -102,6 +146,24 @@ Yii::app()->clientScript->registerCss('prode-predict-css', <<<CSS
 .prode-table tbody td { vertical-align: middle; }
 .prode-libre { background: #fff5f5; color: #b04141; }
 .prode-goles { display: inline-block; width: 70px; text-align: center; font-weight: 700; font-size: 18px; }
+.prode-ayuda-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.prode-ayuda-cell { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 8px; text-align: center; }
+.prode-ayuda-top { background: #eaf5ef; border-color: #078a48; box-shadow: 0 1px 4px rgba(7,138,72,.2); }
+.prode-ayuda-label { font-size: 11px; color: #5d6d67; text-transform: uppercase; letter-spacing: .04em; }
+.prode-ayuda-top .prode-ayuda-label { color: #063f2a; font-weight: 700; }
+.prode-ayuda-pct { font-size: 22px; font-weight: 800; color: #063f2a; margin-top: 2px; }
 CSS
 );
+Yii::app()->clientScript->registerScript('prode-ayuda-toggle', <<<JS
+jQuery(function($){
+    $('.prode-ayuda-btn').on('click', function(){
+        var target = $(this).data('target');
+        var \$row = $('#' + target);
+        if (\$row.length) {
+            \$row.toggle();
+        }
+    });
+});
+JS
+, CClientScript::POS_END);
 ?>

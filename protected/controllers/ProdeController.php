@@ -337,6 +337,22 @@ class ProdeController extends Controller
 			}
 		}
 
+		// Calcular probabilidades estimadas para cada partido (60% historico,
+		// 40% rendimiento actual). Solo aplica a partidos con local y visitante
+		// (no libres).
+		$probabilidades = array();
+		foreach ($partidosFecha as $p) {
+			if ((int)$p->Visitante === 0) {
+				$probabilidades[(int)$p->idFixture] = null;
+				continue;
+			}
+			$probabilidades[(int)$p->idFixture] = self::calcularProbabilidades(
+				(string)$p->Local,
+				(string)$p->Visitante,
+				(int)$p->idTorneo
+			);
+		}
+
 		$this->pageTitle = 'Pronostico - ' . $torneo->Nombre . ' - Fecha ' . $fecha;
 		$this->render('predict', array(
 			'user' => $user,
@@ -344,6 +360,7 @@ class ProdeController extends Controller
 			'fecha' => $fecha,
 			'partidos' => $partidosFecha,
 			'predPorFixture' => $predPorFixture,
+			'probabilidades' => $probabilidades,
 			'lock' => $lock,
 			'mensaje' => $mensaje,
 		));
@@ -581,5 +598,139 @@ class ProdeController extends Controller
 		}
 		if ($ts === false) return false;
 		return (time() >= ($ts - (int)$margenSegundos));
+	}
+
+	/**
+	 * Calcula las probabilidades estimadas de un partido: victoria local,
+	 * empate, victoria visitante. Mezcla 60% historico entre los dos equipos
+	 * (en cualquier torneo) con 40% rendimiento actual (ultimos N partidos
+	 * de cada uno en el torneo indicado).
+	 *
+	 * Si no hay datos suficientes (sin historico y sin partidos en el
+	 * torneo actual), devuelve null.
+	 *
+	 * @param string $idLocal  idEquipo del local.
+	 * @param string $idVisit idEquipo del visitante.
+	 * @param int $idTorneo   idTorneo del torneo en curso.
+	 * @return array|null  Array con 'local', 'empate', 'visitante' (en %)
+	 *                     y 'muestras' (info para mostrar al usuario).
+	 */
+	public static function calcularProbabilidades($idLocal, $idVisit, $idTorneo)
+	{
+		$idLocal = (string)$idLocal;
+		$idVisit = (string)$idVisit;
+		$idTorneo = (int)$idTorneo;
+
+		// --- Historico entre los dos equipos (en cualquier torneo) -------
+		$sqlHist = "SELECT Local, Visitante, GolLocal, GolVisitante FROM fixture
+					WHERE GolLocal IS NOT NULL AND GolVisitante IS NOT NULL
+					  AND ((Local = :a AND Visitante = :b)
+						OR (Local = :b AND Visitante = :a))";
+		$rows = Yii::app()->db->createCommand($sqlHist)
+			->bindValues(array(':a' => $idLocal, ':b' => $idVisit))
+			->queryAll();
+
+		$histLocal = 0; $histEmpate = 0; $histVisit = 0;
+		foreach ($rows as $r) {
+			$gl = (int)$r['GolLocal'];
+			$gv = (int)$r['GolVisitante'];
+			if ($gl === $gv) { $histEmpate++; continue; }
+			// Determinamos quien gano y mapeamos al equipo de interes
+			$ganador = $gl > $gv ? $r['Local'] : $r['Visitante'];
+			if ((string)$ganador === $idLocal) $histLocal++;
+			else $histVisit++;
+		}
+		$totalHist = $histLocal + $histEmpate + $histVisit;
+
+		// --- Rendimiento actual (ultimos N partidos de cada uno en el torneo)
+		$N = 5;
+		$sqlAct = "SELECT Local, Visitante, GolLocal, GolVisitante, Fecha
+				   FROM fixture
+				   WHERE idTorneo = :t
+					 AND GolLocal IS NOT NULL AND GolVisitante IS NOT NULL
+					 AND (Local = :eq OR Visitante = :eq)
+				   ORDER BY Fecha DESC, idFixture DESC
+				   LIMIT :lim";
+		$rowsL = Yii::app()->db->createCommand($sqlAct)
+			->bindValues(array(':t' => $idTorneo, ':eq' => $idLocal, ':lim' => $N))
+			->queryAll();
+		$rowsV = Yii::app()->db->createCommand($sqlAct)
+			->bindValues(array(':t' => $idTorneo, ':eq' => $idVisit, ':lim' => $N))
+			->queryAll();
+
+		$calcFuerza = function($rows, $idEq) {
+			$v = 0; $e = 0; $d = 0;
+			foreach ($rows as $r) {
+				$gl = (int)$r['GolLocal']; $gv = (int)$r['GolVisitante'];
+				if ($gl === $gv) { $e++; continue; }
+				$ganador = $gl > $gv ? $r['Local'] : $r['Visitante'];
+				if ((string)$ganador === (string)$idEq) $v++;
+				else $d++;
+			}
+			$total = count($rows);
+			if ($total === 0) return array('fuerza' => 0.5, 'total' => 0);
+			// fuerza = (V + 0.5*E) / total
+			$fuerza = ($v + 0.5 * $e) / $total;
+			return array('fuerza' => $fuerza, 'total' => $total, 'v' => $v, 'e' => $e, 'd' => $d);
+		};
+		$infoL = $calcFuerza($rowsL, $idLocal);
+		$infoV = $calcFuerza($rowsV, $idVisit);
+
+		// Si no hay datos suficientes, devolver null
+		if ($totalHist === 0 && $infoL['total'] === 0 && $infoV['total'] === 0) {
+			return null;
+		}
+
+		// --- Calculo de probabilidades actuales (con factor localia) ------
+		$factorLocalia = 0.10;
+		$fL = $infoL['fuerza']; $fV = $infoV['fuerza'];
+		$actLocalRaw = $fL + $factorLocalia;
+		$actVisitRaw = $fV;
+		// Empate: mayor cuando los dos equipos tienen fuerza similar
+		$diff = abs($fL - $fV);
+		$actEmpateRaw = (1 - $diff) * 0.40;
+		$sumaAct = $actLocalRaw + $actEmpateRaw + $actVisitRaw;
+		if ($sumaAct <= 0) $sumaAct = 1;
+		$actLocal = $actLocalRaw / $sumaAct;
+		$actEmpate = $actEmpateRaw / $sumaAct;
+		$actVisit = $actVisitRaw / $sumaAct;
+
+		// --- Historico normalizado ---------------------------------------
+		if ($totalHist > 0) {
+			$histPctLocal = $histLocal / $totalHist;
+			$histPctEmpate = $histEmpate / $totalHist;
+			$histPctVisit = $histVisit / $totalHist;
+			$pesoHist = 0.6;
+		} else {
+			$histPctLocal = $actLocal;
+			$histPctEmpate = $actEmpate;
+			$histPctVisit = $actVisit;
+			$pesoHist = 0;
+		}
+
+		// --- Combinacion 60/40 (o 100% actual si no hay historico) -------
+		$pesoAct = 1 - $pesoHist;
+		$pLocal = $pesoHist * $histPctLocal + $pesoAct * $actLocal;
+		$pEmpate = $pesoHist * $histPctEmpate + $pesoAct * $actEmpate;
+		$pVisit = $pesoHist * $histPctVisit + $pesoAct * $actVisit;
+		// Renormalizar por seguridad
+		$suma = $pLocal + $pEmpate + $pVisit;
+		if ($suma > 0) {
+			$pLocal /= $suma; $pEmpate /= $suma; $pVisit /= $suma;
+		}
+
+		return array(
+			'local'    => round($pLocal * 100),
+			'empate'   => round($pEmpate * 100),
+			'visitante' => round($pVisit * 100),
+			'muestras' => array(
+				'historico'   => $totalHist,
+				'local_act'   => $infoL['total'],
+				'visit_act'   => $infoV['total'],
+				'hist_local'  => $histLocal,
+				'hist_empate' => $histEmpate,
+				'hist_visit'  => $histVisit,
+			),
+		);
 	}
 }
