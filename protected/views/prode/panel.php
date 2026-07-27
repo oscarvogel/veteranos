@@ -30,29 +30,31 @@ $tieneEquipo = (int)$user->idEquipo > 0 && $user->equipo !== null;
         <?php if ($tieneEquipo): ?>
             <p>Estas jugando para <strong><?php echo CHtml::encode($user->equipo->Nombre); ?></strong>.
             Los puntos que sumes en tus predicciones tambien suman al ranking de tu equipo.</p>
-            <p>
-                <a class="btn btn-primary" href="<?php echo CHtml::normalizeUrl(array('prode/equipo', 'idEquipo' => (int)$user->idEquipo)); ?>">Ver mi equipo</a>
-            </p>
         <?php else: ?>
             <p>Aun no elegiste equipo. Si queres, podes sumarte a uno y competir en el ranking por equipos tambien.</p>
-            <form method="post" action="<?php echo CHtml::normalizeUrl(array('prode/cambiarEquipo')); ?>" class="form-inline">
-                <div class="form-group" style="margin-right: 8px;">
-                    <label class="sr-only" for="idEquipo">Equipo</label>
-                    <select class="form-control" id="idEquipo" name="idEquipo">
-                        <option value="0">-- Elegi un equipo --</option>
-                        <?php
-                        $criteria = new CDbCriteria;
-                        $criteria->order = 'Nombre ASC';
-                        $equiposList = Equipos::model()->findAll($criteria);
-                        foreach ($equiposList as $eq) {
-                            echo '<option value="' . (int)$eq->idEquipo . '">' . CHtml::encode($eq->Nombre) . '</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary">Sumarme</button>
-            </form>
         <?php endif; ?>
+        <form method="post" action="<?php echo CHtml::normalizeUrl(array('prode/cambiarEquipo')); ?>" class="form-inline">
+            <div class="form-group" style="margin-right: 8px;">
+                <label class="sr-only" for="idEquipo">Equipo</label>
+                <select class="form-control" id="idEquipo" name="idEquipo">
+                    <option value="0" <?php echo !$tieneEquipo ? 'selected' : ''; ?>>-- Sin equipo --</option>
+                    <?php
+                    $criteria = new CDbCriteria;
+                    $criteria->order = 'Nombre ASC';
+                    $equiposList = Equipos::model()->findAll($criteria);
+                    foreach ($equiposList as $eq) {
+                        $sel = ((int)$user->idEquipo === (int)$eq->idEquipo) ? 'selected' : '';
+                        echo '<option value="' . (int)$eq->idEquipo . '" ' . $sel . '>' . CHtml::encode($eq->Nombre) . '</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary"><?php echo $tieneEquipo ? 'Cambiar' : 'Sumarme'; ?></button>
+            <?php if ($tieneEquipo): ?>
+                <a class="btn btn-default" style="margin-left:8px;"
+                    href="<?php echo CHtml::normalizeUrl(array('prode/equipo', 'idEquipo' => (int)$user->idEquipo)); ?>">Ver mi equipo</a>
+            <?php endif; ?>
+        </form>
     </div>
 
     <?php if (Yii::app()->user->hasFlash('prode_ok')): ?>
