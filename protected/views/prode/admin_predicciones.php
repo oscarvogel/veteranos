@@ -6,7 +6,7 @@
         <h1>👀 Predicciones de los usuarios</h1>
         <p>Eleg&iacute; un torneo y una fecha para ver qu&eacute; pronostic&oacute; cada usuario en cada partido.</p>
 
-        <form method="get" action="<?php echo CHtml::normalizeUrl(array('prode/predicciones')); ?>" class="form-inline" style="margin-bottom: 20px;">
+        <form method="get" action="<?php echo Yii::app()->createUrl('/prode/predicciones'); ?>" class="form-inline" style="margin-bottom: 20px;">
             <div class="form-group" style="margin-right: 8px;">
                 <label for="idTorneo" style="margin-right:6px;">Torneo:</label>
                 <select class="form-control" id="idTorneo" name="idTorneo" onchange="this.form.submit()">

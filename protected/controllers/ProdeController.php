@@ -597,8 +597,12 @@ class ProdeController extends Controller
 		if ($idTorneo !== null) {
 			$idTorneo = (int)$idTorneo;
 		}
-		if ($fecha === null && $idTorneo !== null && !empty($fechasPorTorneo[$idTorneo])) {
-			$fecha = (int)$fechasPorTorneo[$idTorneo][0];
+		// Si la fecha no viene o no es valida para el torneo seleccionado,
+		// elegir la primera disponible.
+		if ($idTorneo !== null && !empty($fechasPorTorneo[$idTorneo])) {
+			if ($fecha === null || !in_array((int)$fecha, $fechasPorTorneo[$idTorneo], true)) {
+				$fecha = (int)$fechasPorTorneo[$idTorneo][0];
+			}
 		}
 		if ($fecha !== null) {
 			$fecha = (int)$fecha;
