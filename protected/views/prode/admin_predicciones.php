@@ -6,10 +6,10 @@
         <h1>👀 Predicciones de los usuarios</h1>
         <p>Eleg&iacute; un torneo y una fecha para ver qu&eacute; pronostic&oacute; cada usuario en cada partido.</p>
 
-        <form method="get" action="<?php echo Yii::app()->createUrl('/prode/predicciones'); ?>" class="form-inline" style="margin-bottom: 20px;">
+        <div class="form-inline" style="margin-bottom: 20px;">
             <div class="form-group" style="margin-right: 8px;">
                 <label for="idTorneo" style="margin-right:6px;">Torneo:</label>
-                <select class="form-control" id="idTorneo" name="idTorneo" onchange="this.form.submit()">
+                <select class="form-control" id="idTorneo" name="idTorneo">
                     <option value="">-- Eleg&iacute; uno --</option>
                     <?php foreach ($torneos as $t): ?>
                         <option value="<?php echo (int)$t->idTorneo; ?>"
@@ -21,7 +21,7 @@
             </div>
             <div class="form-group" style="margin-right: 8px;">
                 <label for="fecha" style="margin-right:6px;">Fecha:</label>
-                <select class="form-control" id="fecha" name="fecha" onchange="this.form.submit()">
+                <select class="form-control" id="fecha" name="fecha">
                     <option value="">-- Eleg&iacute; una --</option>
                     <?php if ($idTorneoSel !== null && !empty($fechasPorTorneo[$idTorneoSel])): ?>
                         <?php foreach ($fechasPorTorneo[$idTorneoSel] as $n): ?>
@@ -33,8 +33,8 @@
                     <?php endif; ?>
                 </select>
             </div>
-            <noscript><button type="submit" class="btn btn-primary">Ver</button></noscript>
-        </form>
+            <a class="btn btn-primary" id="prode-pred-ir" href="#">Ir</a>
+        </div>
 
         <?php if (empty($partidos)): ?>
             <div class="alert alert-info">Eleg&iacute; un torneo y una fecha para ver las predicciones.</div>
@@ -173,4 +173,24 @@ Yii::app()->clientScript->registerCss('prode-pred-css', <<<CSS
 }
 CSS
 );
+
+$predBaseUrl = Yii::app()->createUrl('/prode/predicciones');
+Yii::app()->clientScript->registerScript('prode-pred-jump', <<<JS
+jQuery(function($){
+    var baseUrl = '{$predBaseUrl}';
+    function go() {
+        var idT = $('#idTorneo').val();
+        var idF = $('#fecha').val();
+        var url = baseUrl + (baseUrl.indexOf('?') >= 0 ? '&' : '?');
+        if (idT) url += 'idTorneo=' + encodeURIComponent(idT) + '&';
+        if (idF) url += 'fecha=' + encodeURIComponent(idF);
+        // Quitamos el & final sobrante
+        url = url.replace(/[&]$/, '');
+        window.location = url;
+    }
+    $('#idTorneo, #fecha').on('change', go);
+    $('#prode-pred-ir').on('click', function(e){ e.preventDefault(); go(); });
+});
+JS
+, CClientScript::POS_END);
 ?>
