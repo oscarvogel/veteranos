@@ -347,10 +347,102 @@ class Fixture extends CActiveRecord
 	public static function AdelantaFecha($NFecha, $idTorneo){
 		/*$laotrasemana        = new DateTime($DesdeFecha);
 		$laotrasemana->add(new DateInterval('P7D'));
-		Fixture::model()->updateAll(array("Fecha" => "ADDDATE(fecha,7)" ), 
-				"Fecha >= :DesdeFecha and idTorneo = :idTorneo", 
+		Fixture::model()->updateAll(array("Fecha" => "ADDDATE(fecha,7)" ),
+				"Fecha >= :DesdeFecha and idTorneo = :idTorneo",
 				array("DesdeFecha" => $DesdeFecha, "idTorne" => $idTorneo));*/
 		$sql = "update fixture set fecha = adddate(fecha, 7) where NFecha >= " . $NFecha . " and idTorneo = " . $idTorneo;
 		$command=Yii::app()->db->createCommand($sql)->execute();
+	}
+
+	/**
+	 * Reprogama fechas del fixture sumando N dias a la columna Fecha.
+	 * Solo afecta partidos PENDIENTES (PuntosLocal=0 AND PuntosVisitante=0)
+	 * de torneos en estado I o A.
+	 *
+	 * @param array  $torneosIds array de idTorneo a incluir (vacio = ninguno)
+	 * @param string $fechaDesde Fecha calendario (Y-m-d) a partir de la cual se reprograma
+	 * @param int    $dias       Cantidad de dias a sumar (1..60)
+	 * @param bool   $aplicar    false = solo preview, true = ejecuta el UPDATE en transaccion
+	 * @param array  $previewRows OUT: array con las filas afectadas y la fecha nueva calculada
+	 * @return int Cantidad de filas afectadas (o que se van a afectar en preview)
+	 */
+	public static function CorrerFechas($torneosIds, $fechaDesde, $dias, $aplicar = false, &$previewRows = array())
+	{
+		$previewRows = array();
+
+		$dias = (int)$dias;
+		if ($dias < 1 || $dias > 60) {
+			throw new CHttpException(400, 'La cantidad de dias debe estar entre 1 y 60.');
+		}
+		if (empty($fechaDesde) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaDesde)) {
+			throw new CHttpException(400, 'Fecha desde invalida.');
+		}
+		if (!is_array($torneosIds) || count($torneosIds) === 0) {
+			throw new CHttpException(400, 'Tenes que seleccionar al menos un torneo.');
+		}
+
+		$torneosIds = array_map('intval', $torneosIds);
+		$torneosIds = array_filter($torneosIds, function($id) { return $id > 0; });
+		if (count($torneosIds) === 0) {
+			throw new CHttpException(400, 'Tenes que seleccionar al menos un torneo valido.');
+		}
+
+		$placeholders = implode(',', array_fill(0, count($torneosIds), '?'));
+
+		$sql = "SELECT f.idFixture, f.idTorneo, t.Nombre AS Torneo,
+                       f.NFecha, DATE_FORMAT(f.Fecha,'%Y-%m-%d') AS Fecha, f.Hora,
+                       el.Nombre AS LocalNombre, ev.Nombre AS VisitanteNombre,
+                       c.Nombre AS Cancha
+                FROM fixture f
+                INNER JOIN torneo t ON t.idTorneo = f.idTorneo
+                LEFT JOIN equipos el ON el.idEquipo = f.Local
+                LEFT JOIN equipos ev ON ev.idEquipo = f.Visitante
+                LEFT JOIN canchas c ON c.idCancha = f.idCancha
+                WHERE t.Estado IN ('I','A')
+                  AND f.idTorneo IN ($placeholders)
+                  AND f.Fecha >= ?
+                  AND f.PuntosLocal = 0
+                  AND f.PuntosVisitante = 0";
+
+		$params = array_merge($torneosIds, array($fechaDesde));
+
+		$sql .= " ORDER BY t.Nombre, f.Fecha, f.NFecha, f.idFixture";
+
+		$rows = Yii::app()->db->createCommand($sql)->queryAll(true, $params);
+
+		foreach ($rows as $r) {
+			$previewRows[] = array(
+				'idFixture'   => (int)$r['idFixture'],
+				'idTorneo'    => (int)$r['idTorneo'],
+				'Torneo'      => $r['Torneo'],
+				'NFecha'      => $r['NFecha'],
+				'FechaActual' => $r['Fecha'],
+				'FechaNueva'  => date('Y-m-d', strtotime($r['Fecha'] . ' +' . $dias . ' days')),
+				'Hora'        => $r['Hora'],
+				'Local'       => $r['LocalNombre'],
+				'Visitante'   => $r['VisitanteNombre'],
+				'Cancha'      => $r['Cancha'],
+			);
+		}
+
+		if ($aplicar && count($previewRows) > 0) {
+			$ids = array_map('intval', array_column($previewRows, 'idFixture'));
+			$condition = 'idFixture IN (' . implode(',', $ids) . ')';
+
+			$transaction = Yii::app()->db->beginTransaction();
+			try {
+				Yii::app()->db->createCommand()->update(
+					'fixture',
+					array('Fecha' => new CDbExpression('DATE_ADD(Fecha, INTERVAL ' . $dias . ' DAY)')),
+					$condition
+				);
+				$transaction->commit();
+			} catch (Exception $e) {
+				$transaction->rollback();
+				throw $e;
+			}
+		}
+
+		return count($previewRows);
 	}
 }

@@ -96,6 +96,7 @@
 								<li><a href="<?php echo Yii::app()->createUrl('/canchas/admin')?>">Canchas</a></li>
 								<li><a href="<?php echo Yii::app()->createUrl('/fixture/CargaResultadosFecha')?>">Fixture</a></li>
 								<li><a href="<?php echo Yii::app()->createUrl('/fixture/ModificaAsignaciones')?>">Modifica Asignaciones</a></li>
+								<li><a href="<?php echo Yii::app()->createUrl('/fixture/CorrerFechas')?>">Reprogramar fecha</a></li>
 								<li><a href="<?php echo Yii::app()->createUrl('/posicionestorneo/admin')?>">Posiciones Torneo</a></li>
 								<li><a href="<?php echo Yii::app()->createUrl('/ingresos/admin')?>">Ingresos</a></li>
 							</ul>

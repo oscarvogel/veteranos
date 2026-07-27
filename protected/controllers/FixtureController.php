@@ -35,7 +35,7 @@ class FixtureController extends Controller
 			array('allow', // allow admin user to perform 'admin' and 'delete' actions
 				'actions'=>array('admin','delete','creafixture','create','update','AsignaCanchaArbitros',
 						'index','view','ModificaAsignaciones','actualiza','verCanchas',
-						'CopiaFixture'),
+						'CopiaFixture','CorrerFechas'),
 				'users'=>array('admin','oscarvogel'),
 			),
 			array('deny',  // deny all users
@@ -462,6 +462,92 @@ class FixtureController extends Controller
 			$datosJSON[$nombreCancha][Equipos::model()->findByPk($partido->Visitante)->Nombre] = $partido->Visitante;
 			$datosJSON[$nombreCancha][$partido->Hora] = $partido->Hora;
 		}
-		echo CJSON::encode($datosJSON);		
+		echo CJSON::encode($datosJSON);
+	}
+
+	/**
+	 * Reprogama fechas del fixture sumando N dias a la columna Fecha.
+	 * Flujo en 2 pasos: preview (muestra que se va a cambiar) y apply (ejecuta el UPDATE en transaccion).
+	 * GET: form.  POST paso=preview: tabla de preview + confirm.  POST paso=apply: ejecuta y muestra resumen.
+	 */
+	public function actionCorrerFechas()
+	{
+		$torneosIniciados = Torneo::model()->findAll(array(
+			'select' => 'idTorneo, Nombre, Estado, Inicio',
+			'condition' => "Estado IN ('I','A')",
+			'order' => 'Estado DESC, Nombre',
+		));
+		$listaTorneos = array();
+		foreach ($torneosIniciados as $t) {
+			$listaTorneos[(int)$t->idTorneo] = array(
+				'nombre' => $t->Nombre,
+				'estado' => $t->Estado,
+			);
+		}
+
+		$defaults = array(
+			'torneos'    => array(),
+			'fechaDesde' => date('Y-m-d'),
+			'dias'       => 7,
+			'paso'       => '',
+		);
+		$form = $defaults;
+		if (isset($_POST['paso']) && ($_POST['paso'] === 'preview' || $_POST['paso'] === 'apply')) {
+			$form['torneos']    = isset($_POST['torneos']) && is_array($_POST['torneos']) ? array_map('intval', $_POST['torneos']) : array();
+			$form['fechaDesde'] = isset($_POST['fechaDesde']) ? $_POST['fechaDesde'] : date('Y-m-d');
+			$form['dias']       = isset($_POST['dias']) ? (int)$_POST['dias'] : 7;
+			$form['paso']       = $_POST['paso'];
+		}
+
+		$previewRows = array();
+		$resultado   = null;
+		$error       = null;
+
+		if (isset($_POST['paso']) && ($_POST['paso'] === 'preview' || $_POST['paso'] === 'apply')) {
+			$torneosSel = array_values(array_filter($form['torneos'], function($id) use ($listaTorneos) { return isset($listaTorneos[$id]); }));
+			$fechaDesde = $form['fechaDesde'];
+			$dias       = (int)$form['dias'];
+
+			if (empty($torneosSel)) {
+				$error = 'Tenes que seleccionar al menos un torneo.';
+			} else {
+				try {
+					$cantidad = Fixture::CorrerFechas($torneosSel, $fechaDesde, $dias, false, $previewRows);
+
+					if ($_POST['paso'] === 'apply') {
+						if ($cantidad === 0) {
+							$error = 'No hay partidos pendientes para reprogramar con esos criterios.';
+						} else {
+							Fixture::CorrerFechas($torneosSel, $fechaDesde, $dias, true, $previewRows);
+							Yii::log(
+								'CorrerFechas apply: usuario=' . Yii::app()->user->name
+								. ' torneos=' . implode(',', $torneosSel)
+								. ' fechaDesde=' . $fechaDesde
+								. ' dias=' . $dias
+								. ' filas=' . $cantidad,
+								'info',
+								'fixture.reprogramar'
+							);
+							$resultado = array(
+								'cantidad'  => $cantidad,
+								'torneos'   => $torneosSel,
+								'fechaDesde'=> $fechaDesde,
+								'dias'      => $dias,
+							);
+						}
+					}
+				} catch (Exception $e) {
+					$error = $e->getMessage();
+				}
+			}
+		}
+
+		$this->render('correrFechas', array(
+			'listaTorneos'   => $listaTorneos,
+			'form'           => $form,
+			'previewRows'    => $previewRows,
+			'resultado'      => $resultado,
+			'error'          => $error,
+		));
 	}
 }
