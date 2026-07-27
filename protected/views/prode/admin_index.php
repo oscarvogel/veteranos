@@ -51,21 +51,21 @@
                                         <td style="text-align: center;">
                                             <a class="btn btn-sm btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/loadResultados', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Cargar</a>
                                             <?php if (isset($publicadas[(int)$n])): ?>
-                                                <a class="btn btn-sm btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/recalcular', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>"
+                                                <button type="button" class="btn btn-sm btn-default"
                                                     data-toggle="modal" data-target="#prodeConfirmModal"
                                                     data-titulo="Re-calcular puntos"
                                                     data-texto="¿Querés re-calcular los puntos de esta fecha? Sirve si modificaste un resultado después de publicarla."
                                                     data-btn="Re-calcular" data-btn-class="btn-default"
-                                                    data-href="<?php echo CHtml::normalizeUrl(array('prode/recalcular', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Re-calcular</a>
+                                                    data-href="<?php echo CHtml::normalizeUrl(array('prode/recalcular', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Re-calcular</button>
                                                 <a class="btn btn-sm btn-success" href="<?php echo CHtml::normalizeUrl(array('prode/resultados', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>" target="_blank">Ver</a>
                                             <?php endif; ?>
                                             <?php if (!isset($publicadas[(int)$n])): ?>
-                                                <a class="btn btn-sm btn-warning" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>"
+                                                <button type="button" class="btn btn-sm btn-warning"
                                                     data-toggle="modal" data-target="#prodeConfirmModal"
                                                     data-titulo="Publicar fecha <?php echo (int)$n; ?>"
                                                     data-texto="Después de publicarla, va a aparecer en el ranking y se calculan los puntos de todos los pronósticos. ¿Confirmás?"
                                                     data-btn="Publicar" data-btn-class="btn-warning"
-                                                    data-href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Publicar</a>
+                                                    data-href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Publicar</button>
                                             <?php endif; ?>
                                         </td>
                                     </tr>

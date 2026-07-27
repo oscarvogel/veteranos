@@ -72,12 +72,12 @@
             <?php if (empty($lock)): ?>
                 <div style="text-align: right; margin-top: 16px;">
                     <button type="submit" class="btn btn-primary btn-lg">💾 Guardar borrador</button>
-                    <a class="btn btn-warning btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>"
+                    <button type="button" class="btn btn-warning btn-lg"
                         data-toggle="modal" data-target="#prodeConfirmModal"
                         data-titulo="Publicar fecha <?php echo (int)$fecha; ?>"
                         data-texto="Después de publicarla, va a aparecer en el ranking y se calculan los puntos de todos los pronósticos. ¿Confirmás?"
                         data-btn="Publicar" data-btn-class="btn-warning"
-                        data-href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>">📢 Publicar fecha</a>
+                        data-href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>">📢 Publicar fecha</button>
                 </div>
             <?php else: ?>
                 <div style="text-align: right; margin-top: 16px;">
