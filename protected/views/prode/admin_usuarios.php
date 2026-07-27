@@ -10,6 +10,7 @@
                 <tr>
                     <th>Nombre</th>
                     <th>Email</th>
+                    <th>Equipo</th>
                     <th style="text-align: center;">Puntos</th>
                     <th style="text-align: center;">Estado</th>
                     <th style="text-align: center;">Admin</th>
@@ -21,6 +22,14 @@
                     <tr>
                         <td><?php echo CHtml::encode($u->nombre); ?></td>
                         <td><?php echo CHtml::encode($u->email); ?></td>
+                        <td>
+                            <?php if ($u->equipo): ?>
+                                <a href="<?php echo CHtml::normalizeUrl(array('prode/equipo', 'idEquipo' => (int)$u->idEquipo)); ?>"
+                                    style="color:#063f2a;"><?php echo CHtml::encode($u->equipo->Nombre); ?></a>
+                            <?php else: ?>
+                                <span style="color:#94a3b8;">—</span>
+                            <?php endif; ?>
+                        </td>
                         <td style="text-align: center;"><strong><?php echo (int)$u->totalPuntos(); ?></strong></td>
                         <td style="text-align: center;">
                             <?php if ($u->activo): ?>

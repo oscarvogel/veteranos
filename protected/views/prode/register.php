@@ -1,4 +1,15 @@
-<?php $this->pageTitle = 'Crear cuenta - Prode'; ?>
+<?php
+$this->pageTitle = 'Crear cuenta - Prode';
+
+// Listado de equipos para el dropdown
+$criteria = new CDbCriteria;
+$criteria->order = 'Nombre ASC';
+$equiposList = Equipos::model()->findAll($criteria);
+$equiposData = array('0' => 'Sin equipo (opcional)');
+foreach ($equiposList as $eq) {
+    $equiposData[(string)$eq->idEquipo] = $eq->Nombre;
+}
+?>
 
 <div class="prode-auth">
     <div class="prode-auth-card">
@@ -22,6 +33,18 @@
                 <label for="email">Email</label>
                 <input type="email" class="form-control" id="email" name="ProdeUsuario[email]" required maxlength="150"
                     value="<?php echo CHtml::encode($model->email); ?>">
+            </div>
+            <div class="form-group">
+                <label for="idEquipo">Equipo (opcional)</label>
+                <select class="form-control" id="idEquipo" name="ProdeUsuario[idEquipo]">
+                    <?php foreach ($equiposData as $val => $label): ?>
+                        <option value="<?php echo CHtml::encode($val); ?>"
+                            <?php echo (int)$model->idEquipo === (int)$val ? 'selected' : ''; ?>>
+                            <?php echo CHtml::encode($label); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <p class="form-help">Si elegis un equipo, sumas puntos para el ranking de tu equipo. Podes cambiarlo despues.</p>
             </div>
             <div class="form-group">
                 <label for="password">Contrasena</label>

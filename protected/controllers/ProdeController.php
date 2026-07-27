@@ -43,6 +43,9 @@ class ProdeController extends Controller
 			$model->attributes = $_POST['ProdeUsuario'];
 			$model->activo = 1;
 			$model->esAdmin = 0;
+			// idEquipo: si viene 0 o vacio, queda NULL (Sin equipo)
+			$idEq = isset($_POST['ProdeUsuario']['idEquipo']) ? (int)$_POST['ProdeUsuario']['idEquipo'] : 0;
+			$model->idEquipo = $idEq > 0 ? $idEq : null;
 			$model->setPassword($_POST['ProdeUsuario']['password']);
 			if ($model->save()) {
 				ProdeSession::login($model);
@@ -157,6 +160,50 @@ class ProdeController extends Controller
 			'partidos' => $partidosFecha,
 			'predicciones' => $predicciones,
 		));
+	}
+
+	public function actionRankingEquipos()
+	{
+		$this->pageTitle = 'Ranking por equipos - Prode';
+		$rows = ProdeUsuario::getEquiposConPuntos();
+		$this->render('ranking_equipos', array('rows' => $rows));
+	}
+
+	public function actionEquipo($idEquipo)
+	{
+		$idEquipo = (int)$idEquipo;
+		$equipo = Equipos::model()->findByPk($idEquipo);
+		if ($equipo === null) {
+			throw new CHttpException(404, 'Equipo no encontrado.');
+		}
+		$rows = ProdeUsuario::getMiembrosEquipoConPuntos($idEquipo);
+		$this->pageTitle = $equipo->Nombre . ' - Prode';
+		$this->render('equipo_detalle', array('equipo' => $equipo, 'rows' => $rows));
+	}
+
+	public function actionCambiarEquipo()
+	{
+		ProdeSession::requireLogin();
+		$user = ProdeSession::user();
+
+		$idEq = isset($_POST['idEquipo']) ? (int)$_POST['idEquipo'] : 0;
+		$nuevo = null;
+		if ($idEq > 0) {
+			$nuevo = Equipos::model()->findByPk($idEq);
+			if ($nuevo === null) {
+				Yii::app()->user->setFlash('prode_err', 'Equipo invalido.');
+				$this->redirect(array('prode/panel'));
+			}
+		}
+		$user->idEquipo = $nuevo ? (int)$nuevo->idEquipo : null;
+		$user->save(false, array('idEquipo'));
+
+		if ($nuevo) {
+			Yii::app()->user->setFlash('prode_ok', 'Ahora jugas para ' . $nuevo->Nombre . '.');
+		} else {
+			Yii::app()->user->setFlash('prode_ok', 'Ya no estas en ningun equipo.');
+		}
+		$this->redirect(array('prode/panel'));
 	}
 
 	// ============================================================

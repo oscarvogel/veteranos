@@ -8,7 +8,11 @@
             <a class="btn btn-primary btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/register')); ?>">Crear cuenta</a>
             <a class="btn btn-default btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/login')); ?>">Ya tengo cuenta</a>
         </div>
-        <p class="prode-hero-rs"><a href="<?php echo CHtml::normalizeUrl(array('prode/ranking')); ?>">Ver ranking actual &rarr;</a></p>
+        <p class="prode-hero-rs">
+            <a href="<?php echo CHtml::normalizeUrl(array('prode/ranking')); ?>">Ranking individual &rarr;</a>
+            &nbsp;·&nbsp;
+            <a href="<?php echo CHtml::normalizeUrl(array('prode/rankingEquipos')); ?>">Ranking por equipos &rarr;</a>
+        </p>
     </div>
 
     <div class="prode-features">

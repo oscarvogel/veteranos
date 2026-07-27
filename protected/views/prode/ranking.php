@@ -4,6 +4,10 @@
     <div class="prode-header">
         <h1>🏆 Ranking Prode</h1>
         <p>Todos los participantes ordenados por puntos. Actualizado despues de cada fecha publicada.</p>
+        <p style="margin-top:12px;">
+            <a class="btn btn-default" style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4);"
+                href="<?php echo CHtml::normalizeUrl(array('prode/rankingEquipos')); ?>">Ver ranking por equipos &rarr;</a>
+        </p>
     </div>
 
     <?php if (empty($rows)): ?>
@@ -21,10 +25,13 @@
             foreach ($visual as $v):
                 list($r, $clase, $pos) = $v;
                 $u = $r['usuario'];
+                $eqLabel = $u->getEquipoLabel();
+                $eqClass = $u->equipo ? 'prode-eq' : 'prode-eq prode-eq-none';
             ?>
                 <div class="prode-podio-card prode-podio-<?php echo $clase; ?>">
                     <div class="prode-podio-pos"><?php echo $pos; ?>º</div>
                     <div class="prode-podio-name"><?php echo CHtml::encode($u->nombre); ?></div>
+                    <div class="<?php echo $eqClass; ?>"><?php echo CHtml::encode($eqLabel); ?></div>
                     <div class="prode-podio-puntos"><?php echo (int)$r['puntos']; ?></div>
                 </div>
             <?php endforeach; ?>
@@ -46,6 +53,8 @@
                     $u = $r['usuario'];
                     $esYo = $yoId !== null && (int)$u->idProdeUsuario === $yoId;
                     $claseFila = $esYo ? 'prode-row-you' : '';
+                    $eqLabel = $u->getEquipoLabel();
+                    $eqClass = $u->equipo ? 'prode-eq' : 'prode-eq prode-eq-none';
                 ?>
                     <tr class="<?php echo $claseFila; ?>">
                         <td class="prode-pos">
@@ -57,6 +66,13 @@
                         <td>
                             <?php echo CHtml::encode($u->nombre); ?>
                             <?php if ($esYo): ?> <small style="color:#5d6d67">(vos)</small><?php endif; ?>
+                            <?php if ($u->equipo): ?>
+                                <a class="<?php echo $eqClass; ?>" style="text-decoration:none;"
+                                    href="<?php echo CHtml::normalizeUrl(array('prode/equipo', 'idEquipo' => (int)$u->idEquipo)); ?>"
+                                    title="Ver equipo"><?php echo CHtml::encode($eqLabel); ?></a>
+                            <?php else: ?>
+                                <span class="<?php echo $eqClass; ?>"><?php echo CHtml::encode($eqLabel); ?></span>
+                            <?php endif; ?>
                         </td>
                         <td style="text-align: center;"><strong><?php echo (int)$r['puntos']; ?></strong></td>
                         <td style="text-align: center;"><?php echo (int)$r['exactos']; ?></td>
@@ -90,6 +106,8 @@ Yii::app()->clientScript->registerCss('prode-ranking-css', <<<CSS
 .prode-row-you { background: #eaf5ef; font-weight: 600; }
 .prode-pos { font-weight: 800; color: #063f2a; width: 60px; font-size: 18px; }
 .prode-foot { color: #5d6d67; font-size: 13px; margin-top: 16px; }
+.prode-eq { display: inline-block; margin-left: 6px; padding: 2px 8px; background: #eaf5ef; color: #063f2a; border-radius: 10px; font-size: 11px; font-weight: 600; }
+.prode-eq-none { background: #f1f5f9; color: #5d6d67; font-weight: 500; }
 @media (max-width: 767px) {
     .prode-podio { flex-direction: column; }
 }

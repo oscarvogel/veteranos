@@ -3,20 +3,56 @@ $this->pageTitle = 'Mi panel - Prode';
 $user = ProdeSession::user();
 $totalPuntos = $user->totalPuntos();
 $totalExactos = $user->countExactos();
+$tieneEquipo = (int)$user->idEquipo > 0 && $user->equipo !== null;
 ?>
 
 <div class="prode-container">
     <div class="prode-welcome">
         <div>
             <h1>Hola, <?php echo CHtml::encode($user->nombre); ?> 👋</h1>
-            <p>Tus puntos: <strong><?php echo (int)$totalPuntos; ?></strong>
+            <p>
+                Tus puntos: <strong><?php echo (int)$totalPuntos; ?></strong>
                 &nbsp;·&nbsp;
-                Exactos: <strong><?php echo (int)$totalExactos; ?></strong></p>
+                Exactos: <strong><?php echo (int)$totalExactos; ?></strong>
+                &nbsp;·&nbsp;
+                Equipo: <strong><?php echo CHtml::encode($user->getEquipoLabel()); ?></strong>
+            </p>
         </div>
         <div class="prode-welcome-cta">
-            <a class="btn btn-primary" href="<?php echo CHtml::normalizeUrl(array('prode/ranking')); ?>">Ver ranking</a>
+            <a class="btn btn-primary" href="<?php echo CHtml::normalizeUrl(array('prode/ranking')); ?>">Ranking individual</a>
+            <a class="btn btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/rankingEquipos')); ?>">Ranking por equipos</a>
             <a class="btn btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/logout')); ?>">Cerrar sesion</a>
         </div>
+    </div>
+
+    <div class="prode-card">
+        <h2>Tu equipo</h2>
+        <?php if ($tieneEquipo): ?>
+            <p>Estas jugando para <strong><?php echo CHtml::encode($user->equipo->Nombre); ?></strong>.
+            Los puntos que sumes en tus predicciones tambien suman al ranking de tu equipo.</p>
+            <p>
+                <a class="btn btn-primary" href="<?php echo CHtml::normalizeUrl(array('prode/equipo', 'idEquipo' => (int)$user->idEquipo)); ?>">Ver mi equipo</a>
+            </p>
+        <?php else: ?>
+            <p>Aun no elegiste equipo. Si queres, podes sumarte a uno y competir en el ranking por equipos tambien.</p>
+            <form method="post" action="<?php echo CHtml::normalizeUrl(array('prode/cambiarEquipo')); ?>" class="form-inline">
+                <div class="form-group" style="margin-right: 8px;">
+                    <label class="sr-only" for="idEquipo">Equipo</label>
+                    <select class="form-control" id="idEquipo" name="idEquipo">
+                        <option value="0">-- Elegi un equipo --</option>
+                        <?php
+                        $criteria = new CDbCriteria;
+                        $criteria->order = 'Nombre ASC';
+                        $equiposList = Equipos::model()->findAll($criteria);
+                        foreach ($equiposList as $eq) {
+                            echo '<option value="' . (int)$eq->idEquipo . '">' . CHtml::encode($eq->Nombre) . '</option>';
+                        }
+                        ?>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Sumarme</button>
+            </form>
+        <?php endif; ?>
     </div>
 
     <?php if (Yii::app()->user->hasFlash('prode_ok')): ?>
