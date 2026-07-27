@@ -51,11 +51,21 @@
                                         <td style="text-align: center;">
                                             <a class="btn btn-sm btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/loadResultados', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Cargar</a>
                                             <?php if (isset($publicadas[(int)$n])): ?>
-                                                <a class="btn btn-sm btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/recalcular', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>" onclick="return confirm('Recalcular puntos de esta fecha?');">Re-calcular</a>
+                                                <a class="btn btn-sm btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/recalcular', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>"
+                                                    data-toggle="modal" data-target="#prodeConfirmModal"
+                                                    data-titulo="Re-calcular puntos"
+                                                    data-texto="¿Querés re-calcular los puntos de esta fecha? Sirve si modificaste un resultado después de publicarla."
+                                                    data-btn="Re-calcular" data-btn-class="btn-default"
+                                                    data-href="<?php echo CHtml::normalizeUrl(array('prode/recalcular', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Re-calcular</a>
                                                 <a class="btn btn-sm btn-success" href="<?php echo CHtml::normalizeUrl(array('prode/resultados', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>" target="_blank">Ver</a>
                                             <?php endif; ?>
                                             <?php if (!isset($publicadas[(int)$n])): ?>
-                                                <a class="btn btn-sm btn-warning" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>" onclick="return confirm('Publicar esta fecha? Despues se va a ver en el ranking.');">Publicar</a>
+                                                <a class="btn btn-sm btn-warning" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>"
+                                                    data-toggle="modal" data-target="#prodeConfirmModal"
+                                                    data-titulo="Publicar fecha <?php echo (int)$n; ?>"
+                                                    data-texto="Después de publicarla, va a aparecer en el ranking y se calculan los puntos de todos los pronósticos. ¿Confirmás?"
+                                                    data-btn="Publicar" data-btn-class="btn-warning"
+                                                    data-href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => $idT, 'fecha' => (int)$n)); ?>">Publicar</a>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
@@ -80,4 +90,45 @@ Yii::app()->clientScript->registerCss('prode-admin-css', <<<CSS
 .prode-table thead th { background: #f8f9fa; color: #5d6d67; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; border-bottom: 2px solid #e2e8f0; }
 CSS
 );
+?>
+
+<!-- Modal generico de confirmacion -->
+<div class="modal fade" id="prodeConfirmModal" tabindex="-1" role="dialog" aria-labelledby="prodeConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #063f2a; color: #fff; border-bottom: none;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff;opacity:.8;"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="prodeConfirmModalLabel" style="font-weight:700;">Confirmar</h4>
+            </div>
+            <div class="modal-body" id="prodeConfirmModalBody" style="font-size:15px;color:#063f2a;">
+                ¿Confirmás?
+            </div>
+            <div class="modal-footer" style="border-top: none;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <a id="prodeConfirmModalBtn" href="#" class="btn btn-warning">Confirmar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+Yii::app()->clientScript->registerScript('prode-confirm-modal', <<<JS
+jQuery(function($){
+    $('#prodeConfirmModal').on('show.bs.modal', function (event) {
+        var btn = $(event.relatedTarget);
+        var titulo = btn.data('titulo') || 'Confirmar';
+        var texto = btn.data('texto') || '¿Confirmás?';
+        var href = btn.data('href') || '#';
+        var btnLabel = btn.data('btn') || 'Confirmar';
+        var btnClass = btn.data('btn-class') || 'btn-warning';
+        var \$modal = $(this);
+        \$modal.find('.modal-title').text(titulo);
+        \$modal.find('.modal-body').text(texto);
+        var \$confirm = \$modal.find('#prodeConfirmModalBtn');
+        \$confirm.text(btnLabel).attr('href', href);
+        \$confirm.removeClass('btn-warning btn-default btn-success btn-danger').addClass(btnClass);
+    });
+});
+JS
+, CClientScript::POS_END);
 ?>

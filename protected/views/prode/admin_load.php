@@ -72,7 +72,12 @@
             <?php if (empty($lock)): ?>
                 <div style="text-align: right; margin-top: 16px;">
                     <button type="submit" class="btn btn-primary btn-lg">💾 Guardar borrador</button>
-                    <a class="btn btn-warning btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>" onclick="return confirm('Publicar esta fecha? Despues se va a ver en el ranking.');">📢 Publicar fecha</a>
+                    <a class="btn btn-warning btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>"
+                        data-toggle="modal" data-target="#prodeConfirmModal"
+                        data-titulo="Publicar fecha <?php echo (int)$fecha; ?>"
+                        data-texto="Después de publicarla, va a aparecer en el ranking y se calculan los puntos de todos los pronósticos. ¿Confirmás?"
+                        data-btn="Publicar" data-btn-class="btn-warning"
+                        data-href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>">📢 Publicar fecha</a>
                 </div>
             <?php else: ?>
                 <div style="text-align: right; margin-top: 16px;">
@@ -94,4 +99,45 @@ Yii::app()->clientScript->registerCss('prode-load-css', <<<CSS
 .prode-goles { display: inline-block; width: 80px; text-align: center; font-weight: 700; }
 CSS
 );
+?>
+
+<!-- Modal generico de confirmacion (compartido con admin_index) -->
+<div class="modal fade" id="prodeConfirmModal" tabindex="-1" role="dialog" aria-labelledby="prodeConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header" style="background: #063f2a; color: #fff; border-bottom: none;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color:#fff;opacity:.8;"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="prodeConfirmModalLabel" style="font-weight:700;">Confirmar</h4>
+            </div>
+            <div class="modal-body" id="prodeConfirmModalBody" style="font-size:15px;color:#063f2a;">
+                ¿Confirmás?
+            </div>
+            <div class="modal-footer" style="border-top: none;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+                <a id="prodeConfirmModalBtn" href="#" class="btn btn-warning">Confirmar</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
+Yii::app()->clientScript->registerScript('prode-confirm-modal', <<<JS
+jQuery(function($){
+    $('#prodeConfirmModal').on('show.bs.modal', function (event) {
+        var btn = $(event.relatedTarget);
+        var titulo = btn.data('titulo') || 'Confirmar';
+        var texto = btn.data('texto') || '¿Confirmás?';
+        var href = btn.data('href') || '#';
+        var btnLabel = btn.data('btn') || 'Confirmar';
+        var btnClass = btn.data('btn-class') || 'btn-warning';
+        var \$modal = $(this);
+        \$modal.find('.modal-title').text(titulo);
+        \$modal.find('.modal-body').text(texto);
+        var \$confirm = \$modal.find('#prodeConfirmModalBtn');
+        \$confirm.text(btnLabel).attr('href', href);
+        \$confirm.removeClass('btn-warning btn-default btn-success btn-danger').addClass(btnClass);
+    });
+});
+JS
+, CClientScript::POS_END);
 ?>
