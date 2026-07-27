@@ -74,6 +74,7 @@
 								<li><a href="<?php echo Yii::app()->createUrl('/prode/panel')?>">Mi panel</a></li>
 								<?php if ($esAdminProde): ?>
 									<li><a href="<?php echo Yii::app()->createUrl('/prode/admin')?>">🔒 Admin Prode</a></li>
+									<li><a href="<?php echo Yii::app()->createUrl('/prode/predicciones')?>">👀 Ver predicciones</a></li>
 									<li><a href="<?php echo Yii::app()->createUrl('/prode/usuarios')?>">👥 Gestionar usuarios del prode</a></li>
 								<?php endif; ?>
 								<li><a href="<?php echo Yii::app()->createUrl('/prode/logout')?>">Cerrar sesi&oacute;n</a></li>

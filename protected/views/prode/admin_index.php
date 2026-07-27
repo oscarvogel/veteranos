@@ -8,6 +8,8 @@
         <p>
             <a class="btn btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/usuarios')); ?>">👥 Gestionar usuarios</a>
             &nbsp;
+            <a class="btn btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/predicciones')); ?>">👀 Ver predicciones</a>
+            &nbsp;
             <a class="btn btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/ranking')); ?>">🏆 Ver ranking</a>
         </p>
 

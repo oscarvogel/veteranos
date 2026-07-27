@@ -566,6 +566,92 @@ class ProdeController extends Controller
 		));
 	}
 
+	public function actionPredicciones($idTorneo = null, $fecha = null)
+	{
+		ProdeSession::requireAdmin();
+		$user = ProdeSession::user();
+
+		// Torneos I/A
+		$criteria = new CDbCriteria;
+		$criteria->condition = "Estado in ('I','A')";
+		$criteria->order = 'Inicio DESC, idTorneo DESC';
+		$torneos = Torneo::model()->findAll($criteria);
+
+		// Fechas por torneo
+		$fechasPorTorneo = array();
+		foreach ($torneos as $t) {
+			$ps = Fixture::model()->ConsultaFixture((int)$t->idTorneo);
+			$fechas = array();
+			foreach ($ps as $p) {
+				$n = (int)$p->NFecha;
+				if (!in_array($n, $fechas, true)) $fechas[] = $n;
+			}
+			sort($fechas);
+			$fechasPorTorneo[(int)$t->idTorneo] = $fechas;
+		}
+
+		// Si no hay params, elegir el primer torneo/fecha disponibles
+		if ($idTorneo === null && !empty($torneos)) {
+			$idTorneo = (int)$torneos[0]->idTorneo;
+		}
+		if ($idTorneo !== null) {
+			$idTorneo = (int)$idTorneo;
+		}
+		if ($fecha === null && $idTorneo !== null && !empty($fechasPorTorneo[$idTorneo])) {
+			$fecha = (int)$fechasPorTorneo[$idTorneo][0];
+		}
+		if ($fecha !== null) {
+			$fecha = (int)$fecha;
+		}
+
+		$partidosFecha = array();
+		$usuarios = array();
+		$predPorUsuarioYFixture = array(); // [idUsuario][idFixture] => ProdePrediccion
+		$publicada = false;
+
+		if ($idTorneo !== null && $fecha !== null) {
+			$partidos = Fixture::model()->ConsultaFixture($idTorneo);
+			foreach ($partidos as $p) {
+				if ((int)$p->NFecha === $fecha) {
+					$partidosFecha[] = $p;
+				}
+			}
+
+			// Todos los usuarios activos
+			$uc = new CDbCriteria;
+			$uc->condition = 'activo = 1';
+			$uc->order = 'nombre ASC';
+			$usuarios = ProdeUsuario::model()->findAll($uc);
+
+			// Predicciones de estos partidos
+			if (!empty($partidosFecha)) {
+				$idsFix = array();
+				foreach ($partidosFecha as $p) $idsFix[] = (int)$p->idFixture;
+				$pc = new CDbCriteria;
+				$pc->addInCondition('idFixture', $idsFix);
+				$todas = ProdePrediccion::model()->findAll($pc);
+				foreach ($todas as $pred) {
+					$predPorUsuarioYFixture[(int)$pred->idProdeUsuario][(int)$pred->idFixture] = $pred;
+				}
+			}
+
+			$publicada = ProdeFechaPublicada::estaPublicada($idTorneo, $fecha);
+		}
+
+		$this->pageTitle = 'Predicciones - Prode Admin';
+		$this->render('admin_predicciones', array(
+			'user' => $user,
+			'torneos' => $torneos,
+			'fechasPorTorneo' => $fechasPorTorneo,
+			'idTorneoSel' => $idTorneo,
+			'fechaSel' => $fecha,
+			'partidos' => $partidosFecha,
+			'usuarios' => $usuarios,
+			'predPorUsuarioYFixture' => $predPorUsuarioYFixture,
+			'publicada' => $publicada,
+		));
+	}
+
 	// ============================================================
 	// HELPERS
 	// ============================================================
