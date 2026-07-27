@@ -50,7 +50,40 @@
 			<div class="collapse navbar-collapse" id="navbar-main">
 				<ul class="nav navbar-nav">
 					<li><a href="/">INICIO</a></li>
-					<li><a href="<?php echo Yii::app()->createUrl('/prode/index')?>">🎯 Prode</a></li>
+					<?php
+					// Prode: dropdown con accesos segun login + admin del prode.
+					// ProdeSession::user() puede ser null (si el componente no esta
+					// disponible, no rompe gracias al try/catch).
+					$prodeUser = null;
+					try {
+						if (class_exists('ProdeSession', false)) {
+							$prodeUser = ProdeSession::user();
+						}
+					} catch (Exception $e) { $prodeUser = null; }
+					$esAdminProde = ($prodeUser !== null && (int)$prodeUser->esAdmin === 1);
+					$logueadoProde = ($prodeUser !== null);
+					?>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown">🎯 Prode <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="<?php echo Yii::app()->createUrl('/prode/index')?>">Inicio Prode</a></li>
+							<li><a href="<?php echo Yii::app()->createUrl('/prode/ranking')?>">Ranking individual</a></li>
+							<li><a href="<?php echo Yii::app()->createUrl('/prode/rankingEquipos')?>">Ranking por equipos</a></li>
+							<?php if ($logueadoProde): ?>
+								<li role="separator" class="divider"></li>
+								<li><a href="<?php echo Yii::app()->createUrl('/prode/panel')?>">Mi panel</a></li>
+								<?php if ($esAdminProde): ?>
+									<li><a href="<?php echo Yii::app()->createUrl('/prode/admin')?>">🔒 Admin Prode</a></li>
+									<li><a href="<?php echo Yii::app()->createUrl('/prode/usuarios')?>">👥 Gestionar usuarios del prode</a></li>
+								<?php endif; ?>
+								<li><a href="<?php echo Yii::app()->createUrl('/prode/logout')?>">Cerrar sesi&oacute;n</a></li>
+							<?php else: ?>
+								<li role="separator" class="divider"></li>
+								<li><a href="<?php echo Yii::app()->createUrl('/prode/login')?>">Iniciar sesi&oacute;n</a></li>
+								<li><a href="<?php echo Yii::app()->createUrl('/prode/register')?>">Crear cuenta</a></li>
+							<?php endif; ?>
+						</ul>
+					</li>
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown">Consultas <span class="caret"></span></a>
 						<ul class="dropdown-menu">
