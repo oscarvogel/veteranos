@@ -52,11 +52,11 @@
 					<li><a href="/">INICIO</a></li>
 					<?php
 					// Prode: dropdown con accesos segun login + admin del prode.
-					// ProdeSession::user() puede ser null (si el componente no esta
-					// disponible, no rompe gracias al try/catch).
+					// class_exists con true para que Yii autoloade la clase si no
+					// fue importada explicitamente en esta pagina.
 					$prodeUser = null;
 					try {
-						if (class_exists('ProdeSession', false)) {
+						if (class_exists('ProdeSession', true)) {
 							$prodeUser = ProdeSession::user();
 						}
 					} catch (Exception $e) { $prodeUser = null; }
