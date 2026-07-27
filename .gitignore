@@ -48,3 +48,7 @@ protected/runtime/
 # Local toolchains
 /tools/php-*/
 /tools/*.zip
+
+# Local script outputs and mPDF temp files
+/output/
+/protected/vendors/mpdf/tmp/
