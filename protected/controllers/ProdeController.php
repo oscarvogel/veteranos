@@ -287,10 +287,11 @@ class ProdeController extends Controller
 			throw new CHttpException(404, 'No hay partidos cargados para esta fecha.');
 		}
 
-		// Lock: si la fecha ya empezo (Fecha del primer partido <= hoy), no se puede editar
+		// Lock: el usuario puede editar hasta el dia ANTERIOR al partido.
+		// Si se juega el 1/8, puede editar hasta el 31/7 inclusive.
+		// El 1/8 ya esta bloqueado desde las 00:00.
 		$primerPartido = $partidosFecha[0];
-		$fechaPartido = $primerPartido->Fecha; // date
-		$lock = strtotime($fechaPartido) <= time();
+		$lock = self::partidoEstaBloqueado($primerPartido, 0, false);
 
 		// Cargar predicciones existentes del usuario
 		$idsFixture = array();
@@ -409,6 +410,12 @@ class ProdeController extends Controller
 			}
 		}
 
+		// Lock del admin: puede editar/cargar resultados hasta el dia
+		// ANTERIOR al partido. Si se juega el 1/8, puede cargar hasta el
+		// 31/7 inclusive. El 1/8 ya esta bloqueado desde las 00:00.
+		$primerPartido = !empty($partidosFecha) ? $partidosFecha[0] : null;
+		$lockResultados = $primerPartido === null ? false : self::partidoEstaBloqueado($primerPartido, 0, false);
+
 		$mensaje = null;
 		if (isset($_POST['resultados'])) {
 			foreach ($_POST['resultados'] as $idFix => $data) {
@@ -432,6 +439,7 @@ class ProdeController extends Controller
 			'torneo' => $torneo,
 			'fecha' => $fecha,
 			'partidos' => $partidosFecha,
+			'lock' => $lockResultados,
 			'mensaje' => $mensaje,
 		));
 	}
@@ -446,6 +454,21 @@ class ProdeController extends Controller
 		$torneo = Torneo::model()->findByPk($idTorneo);
 		if ($torneo === null) {
 			throw new CHttpException(404, 'Torneo no encontrado.');
+		}
+
+		// Lock: el admin no puede publicar el dia del partido. Si se juega
+		// el 1/8, el 1/8 ya esta bloqueado desde las 00:00 y no se puede
+		// publicar hasta despues (lo cual no tiene sentido, el partido ya
+		// se jugo). En la practica el admin deberia publicar al cargar
+		// los resultados, antes de la medianoche del dia del partido.
+		$partidosPrecheck = Fixture::model()->ConsultaFixture($idTorneo);
+		$primerPartido = null;
+		foreach ($partidosPrecheck as $p) {
+			if ((int)$p->NFecha === $fecha) { $primerPartido = $p; break; }
+		}
+		if ($primerPartido !== null && self::partidoEstaBloqueado($primerPartido, 0, false)) {
+			Yii::app()->user->setFlash('prode_err', 'No se puede publicar la fecha: ya paso la fecha limite (inicio del dia del partido).');
+			$this->redirect(array('prode/admin'));
 		}
 
 		// Recalcular puntos de esta fecha
@@ -524,5 +547,39 @@ class ProdeController extends Controller
 			'user' => $user,
 			'usuarios' => $usuarios,
 		));
+	}
+
+	// ============================================================
+	// HELPERS
+	// ============================================================
+
+	/**
+	 * Devuelve true si la edicion del partido esta bloqueada.
+	 *
+	 * Comportamiento: el lock se activa al INICIO DEL DIA del partido
+	 * (medianoche), sin importar la hora. Si el partido es el 1/8 a las
+	 * 15:00, ya no se puede editar desde el 1/8 a las 00:00. El dia
+	 * anterior (31/7) se puede editar todo el dia.
+	 *
+	 * @param object $partido Row de fixture con Fecha (Y-m-d) y Hora (H:i:s).
+	 * @param int $margenSegundos Segundos previos que se consideran "bloqueados".
+	 *        0 = bloquea al inicio del dia del partido (default).
+	 *        > 0 = bloquea N segundos antes.
+	 * @param bool $usarHora Si es true, usa la columna Hora (lock por hora del partido).
+	 *        Si es false (default), ignora la hora y bloquea al inicio del dia.
+	 * @return bool
+	 */
+	public static function partidoEstaBloqueado($partido, $margenSegundos = 0, $usarHora = false)
+	{
+		if ($partido === null) return false;
+		$fecha = (string)$partido->Fecha; // Y-m-d
+		$hora = isset($partido->Hora) ? (string)$partido->Hora : '';
+		if ($usarHora && $hora !== '' && $hora !== '00:00:00' && $hora !== '00:00') {
+			$ts = strtotime($fecha . ' ' . $hora);
+		} else {
+			$ts = strtotime($fecha . ' 00:00:00');
+		}
+		if ($ts === false) return false;
+		return (time() >= ($ts - (int)$margenSegundos));
 	}
 }

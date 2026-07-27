@@ -10,13 +10,23 @@
             <div class="alert alert-success"><?php echo CHtml::encode($mensaje); ?></div>
         <?php endif; ?>
 
-        <?php if ($lock): ?>
+        <?php if ($lock):
+            $pp = $partidosFecha[0];
+            $ayer = date('Y-m-d', strtotime($pp->Fecha . ' -1 day'));
+            $ayerFmt = date('d/m/Y', strtotime($ayer));
+        ?>
             <div class="alert alert-warning">
-                <strong>🔒 Fecha bloqueada.</strong> El primer partido ya empez&oacute;. No se puede modificar el pron&oacute;stico.
+                <strong>🔒 Fecha bloqueada.</strong> Es el d&iacute;a del partido (o ya pas&oacute;).
+                No se puede modificar el pron&oacute;stico. Se pod&iacute;a editar hasta el <?php echo $ayerFmt; ?>.
             </div>
-        <?php else: ?>
+        <?php else:
+            $pp = $partidosFecha[0];
+            $ayer = date('d/m/Y', strtotime($pp->Fecha . ' -1 day'));
+            $diaPartido = date('d/m/Y', strtotime($pp->Fecha));
+        ?>
             <div class="alert alert-info">
-                <strong>⏰ Record&aacute;:</strong> pod&eacute;s editar tu pron&oacute;stico hasta que arranque el primer partido de la fecha.
+                <strong>⏰ Record&aacute;:</strong> pod&eacute;s editar tu pron&oacute;stico hasta el <?php echo $ayer; ?>
+                (inclusive). El <?php echo $diaPartido; ?> ya est&aacute; bloqueado desde las 00:00.
             </div>
         <?php endif; ?>
 

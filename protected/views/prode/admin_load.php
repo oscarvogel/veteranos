@@ -10,6 +10,16 @@
             <div class="alert alert-success"><?php echo CHtml::encode($mensaje); ?></div>
         <?php endif; ?>
 
+        <?php if (!empty($lock)):
+            $pp = !empty($partidos) ? $partidos[0] : null;
+            $ayer = $pp ? date('d/m/Y', strtotime($pp->Fecha . ' -1 day')) : '';
+        ?>
+            <div class="alert alert-warning">
+                <strong>🔒 Edici&oacute;n bloqueada.</strong> Es el d&iacute;a del partido (o ya pas&oacute;).
+                Se pod&iacute;a cargar hasta el <?php echo $ayer; ?>. Los resultados que ves son los que quedaron cargados.
+            </div>
+        <?php endif; ?>
+
         <form method="post" action="<?php echo CHtml::normalizeUrl(array('prode/loadResultados', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>">
             <table class="table prode-table">
                 <thead>
@@ -40,7 +50,7 @@
                                     <input type="number" class="form-control prode-goles"
                                         name="resultados[<?php echo (int)$p->idFixture; ?>][golesLocal]"
                                         min="0" max="30"
-                                        value="<?php echo $p->GolLocal !== null ? (int)$p->GolLocal : ''; ?>">
+                                        value="<?php echo $p->GolLocal !== null ? (int)$p->GolLocal : ''; ?>"<?php echo !empty($lock) ? ' disabled' : ''; ?>>
                                 <?php endif; ?>
                             </td>
                             <td style="text-align: center;">
@@ -49,7 +59,7 @@
                                     <input type="number" class="form-control prode-goles"
                                         name="resultados[<?php echo (int)$p->idFixture; ?>][golesVisitante]"
                                         min="0" max="30"
-                                        value="<?php echo $p->GolVisitante !== null ? (int)$p->GolVisitante : ''; ?>">
+                                        value="<?php echo $p->GolVisitante !== null ? (int)$p->GolVisitante : ''; ?>"<?php echo !empty($lock) ? ' disabled' : ''; ?>>
                                 <?php endif; ?>
                             </td>
                             <td>
@@ -59,10 +69,16 @@
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <div style="text-align: right; margin-top: 16px;">
-                <button type="submit" class="btn btn-primary btn-lg">💾 Guardar borrador</button>
-                <a class="btn btn-warning btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>" onclick="return confirm('Publicar esta fecha? Despues se va a ver en el ranking.');">📢 Publicar fecha</a>
-            </div>
+            <?php if (empty($lock)): ?>
+                <div style="text-align: right; margin-top: 16px;">
+                    <button type="submit" class="btn btn-primary btn-lg">💾 Guardar borrador</button>
+                    <a class="btn btn-warning btn-lg" href="<?php echo CHtml::normalizeUrl(array('prode/publicar', 'idTorneo' => (int)$torneo->idTorneo, 'fecha' => (int)$fecha)); ?>" onclick="return confirm('Publicar esta fecha? Despues se va a ver en el ranking.');">📢 Publicar fecha</a>
+                </div>
+            <?php else: ?>
+                <div style="text-align: right; margin-top: 16px;">
+                    <a class="btn btn-default" href="<?php echo CHtml::normalizeUrl(array('prode/admin')); ?>">Volver al admin</a>
+                </div>
+            <?php endif; ?>
         </form>
     </div>
 </div>
