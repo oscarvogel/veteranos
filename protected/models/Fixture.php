@@ -130,6 +130,19 @@ class Fixture extends CActiveRecord
 		));
 	}
 
+	public function asignaPuntosPorResultado(){
+		if($this->GolLocal > $this->GolVisitante){
+			$this->PuntosLocal = 3;
+			$this->PuntosVisitante = 0;
+		}elseif($this->GolVisitante > $this->GolLocal){
+			$this->PuntosLocal = 0;
+			$this->PuntosVisitante = 3;
+		}else{
+			$this->PuntosLocal = 1;
+			$this->PuntosVisitante = 1;
+		}
+	}
+
 	public function TablaPosiciones($id = 0, $idCategoria = 1){
 		$torneo = Torneo::buscarPorClave($id);
 		$sql = "select equipos.* from equipos inner join equipostorneo on equipos.idEquipo = equipostorneo.idEquipo where equipostorneo.idTorneo = " . $id; 
@@ -193,47 +206,42 @@ class Fixture extends CActiveRecord
 	
 	
 	public function ordenar_array() {
-  		 
-  	$n_parametros = func_num_args(); // Obenemos el número de parámetros 
-  	if ($n_parametros<3 || $n_parametros%2!=1) { // Si tenemos el número de parametro mal... 
-    	return false; 
-  	} else { // Hasta aquí todo correcto...veamos si los parámetros tienen lo que debe ser... 
-    	$arg_list = func_get_args(); 
- 
-    if (!(is_array($arg_list[0]) && is_array(current($arg_list[0])))) { 
-      return false; // Si el primero no es un array...MALO! 
-    } 
-    for ($i = 1; $i<$n_parametros; $i++) { // Miramos que el resto de parámetros tb estén bien... 
-      if ($i%2!=0) {// Parámetro impar...tiene que ser un campo del array... 
-        if (!array_key_exists($arg_list[$i], current($arg_list[0]))) { 
-          return false; 
-        } 
-      } else { // Par, no falla...si no es SORT_ASC o SORT_DESC...a la calle! 
-        if ($arg_list[$i]!=SORT_ASC && $arg_list[$i]!=SORT_DESC) { 
-          return false; 
-        } 
-      } 
-    } 
-    $array_salida = $arg_list[0]; 
- 
-    // Una vez los parámetros se que están bien, procederé a ordenar... 
-    $a_evaluar = "foreach (\$array_salida as \$fila){\n"; 
-    for ($i=1; $i<$n_parametros; $i+=2) { // Ahora por cada columna... 
-      $a_evaluar .= "  \$campo[$2][] = \$fila['$arg_list[$i]'];\n"; 
-    } 
-    $a_evaluar .= "}\n"; 
-    $a_evaluar .= "array_multisort(\n"; 
-    for ($i=1; $i<$n_parametros; $i+=2) { // Ahora por cada elemento... 
-      $a_evaluar .= "  \$campo[$2], SORT_REGULAR, \$arg_list[".($i+1)."],\n"; 
-    } 
-    $a_evaluar .= "  \$array_salida);"; 
-    // La verdad es que es más complicado de lo que creía en principio... :) 
- 
-    eval($a_evaluar); 
-    return $array_salida; 
-  } 
+		$n_parametros = func_num_args();
+		if($n_parametros < 3 || $n_parametros % 2 != 1)
+			return false;
 
-}
+		$arg_list = func_get_args();
+		if(!(is_array($arg_list[0]) && is_array(current($arg_list[0]))))
+			return false;
+
+		for($i = 1; $i < $n_parametros; $i++){
+			if($i % 2 != 0){
+				if(!array_key_exists($arg_list[$i], current($arg_list[0])))
+					return false;
+			}else{
+				if($arg_list[$i] != SORT_ASC && $arg_list[$i] != SORT_DESC)
+					return false;
+			}
+		}
+
+		$array_salida = $arg_list[0];
+		$criterios = array();
+		for($i = 1; $i < $n_parametros; $i += 2)
+			$criterios[] = array('campo'=>$arg_list[$i], 'orden'=>$arg_list[$i + 1]);
+
+		usort($array_salida, function($a, $b) use ($criterios){
+			foreach($criterios as $criterio){
+				$campo = $criterio['campo'];
+				if($a[$campo] == $b[$campo])
+					continue;
+				$resultado = ($a[$campo] < $b[$campo]) ? -1 : 1;
+				return $criterio['orden'] == SORT_ASC ? $resultado : -$resultado;
+			}
+			return 0;
+		});
+
+		return $array_salida;
+	}
 
 	public static function ConsultaFecha($idTorneo = 1, $Fecha = "0000-00-00"){
 		$criteria = new CDbCriteria;

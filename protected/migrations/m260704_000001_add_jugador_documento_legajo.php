@@ -6,6 +6,7 @@ class m260704_000001_add_jugador_documento_legajo extends CDbMigration
 		'action_jugador_legajo' => 'Ver legajo digital de jugadores',
 		'action_jugador_subirDocumento' => 'Subir documentos al legajo digital',
 		'action_jugador_descargarDocumento' => 'Descargar documentos del legajo digital',
+		'action_jugador_verDocumento' => 'Ver imagenes del legajo digital',
 		'action_jugador_eliminarDocumento' => 'Eliminar documentos del legajo digital',
 	);
 

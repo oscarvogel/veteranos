@@ -10,6 +10,10 @@ $this->menu=array(
 	array('label'=>'Documentacion', 'url'=>array('documentacion')),
 );
 
+$tiposDocumento = JugadorDocumento::getTipos();
+$tipoSeleccionado = isset($_GET['tipo']) && isset($tiposDocumento[$_GET['tipo']]) ? $_GET['tipo'] : '';
+$foto = isset($foto) ? $foto : null;
+
 Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 	.legajo-header {
 		margin-bottom: 18px;
@@ -17,10 +21,33 @@ Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 		border: 1px solid #dbe3ee;
 		border-radius: 6px;
 		background: #fff;
+		display: grid;
+		grid-template-columns: 110px 1fr;
+		gap: 16px;
+		align-items: center;
 	}
 	.legajo-header h1 {
 		margin: 0 0 10px;
 		font-size: 24px;
+	}
+	.legajo-foto {
+		width: 96px;
+		height: 96px;
+		border: 1px solid #dbe3ee;
+		border-radius: 4px;
+		background: #f8fafc;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		color: #64748b;
+		font-size: 12px;
+		text-align: center;
+	}
+	.legajo-foto img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
 	}
 	.legajo-meta {
 		display: grid;
@@ -70,7 +97,16 @@ Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 		display: inline;
 		margin: 0;
 	}
+	.legajo-camera-help {
+		display: none;
+		color: #0f766e;
+		font-weight: bold;
+	}
+	.legajo-camera-mode .legajo-camera-help {
+		display: block;
+	}
 	@media (max-width: 760px) {
+		.legajo-header,
 		.legajo-meta,
 		.legajo-form-grid {
 			grid-template-columns: 1fr;
@@ -88,25 +124,34 @@ Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 <?php endforeach; ?>
 
 <div class="legajo-header">
-	<h1>Legajo digital</h1>
-	<dl class="legajo-meta">
-		<div>
-			<dt>Jugador</dt>
-			<dd><?php echo CHtml::encode($jugador->Nombre); ?></dd>
-		</div>
-		<div>
-			<dt>DNI</dt>
-			<dd><?php echo CHtml::encode($jugador->DNI); ?></dd>
-		</div>
-		<div>
-			<dt>Clase</dt>
-			<dd><?php echo CHtml::encode($jugador->Clase); ?></dd>
-		</div>
-		<div>
-			<dt>Equipo</dt>
-			<dd><?php echo $jugador->Equipo ? CHtml::encode($jugador->Equipo->Nombre) : 'Sin equipo'; ?></dd>
-		</div>
-	</dl>
+	<div class="legajo-foto">
+		<?php if($foto !== null): ?>
+			<img src="<?php echo CHtml::normalizeUrl(array('jugador/verDocumento', 'idDocumento'=>$foto->idDocumento)); ?>" alt="Foto de <?php echo CHtml::encode($jugador->Nombre); ?>" />
+		<?php else: ?>
+			Sin foto
+		<?php endif; ?>
+	</div>
+	<div>
+		<h1>Legajo digital</h1>
+		<dl class="legajo-meta">
+			<div>
+				<dt>Jugador</dt>
+				<dd><?php echo CHtml::encode($jugador->Nombre); ?></dd>
+			</div>
+			<div>
+				<dt>DNI</dt>
+				<dd><?php echo CHtml::encode($jugador->DNI); ?></dd>
+			</div>
+			<div>
+				<dt>Clase</dt>
+				<dd><?php echo CHtml::encode($jugador->Clase); ?></dd>
+			</div>
+			<div>
+				<dt>Equipo</dt>
+				<dd><?php echo $jugador->Equipo ? CHtml::encode($jugador->Equipo->Nombre) : 'Sin equipo'; ?></dd>
+			</div>
+		</dl>
+	</div>
 </div>
 
 <div class="legajo-panel">
@@ -115,7 +160,7 @@ Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 		<div class="legajo-form-grid">
 			<div class="legajo-form-field">
 				<?php echo CHtml::label('Tipo de documento', 'JugadorDocumento_tipo'); ?>
-				<?php echo CHtml::dropDownList('JugadorDocumento[tipo]', '', JugadorDocumento::getTipos(), array('id'=>'JugadorDocumento_tipo', 'empty'=>'Seleccione...')); ?>
+				<?php echo CHtml::dropDownList('JugadorDocumento[tipo]', $tipoSeleccionado, $tiposDocumento, array('id'=>'JugadorDocumento_tipo', 'empty'=>'Seleccione...')); ?>
 			</div>
 			<div class="legajo-form-field">
 				<?php echo CHtml::label('Titulo', 'JugadorDocumento_titulo'); ?>
@@ -124,7 +169,8 @@ Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 			<div class="legajo-form-field legajo-form-wide">
 				<?php echo CHtml::label('Archivo PDF o imagen', 'archivo'); ?>
 				<?php echo CHtml::fileField('archivo', '', array('id'=>'archivo', 'accept'=>'.pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png')); ?>
-				<p class="help-block">Formatos permitidos: PDF, JPG, JPEG, PNG. Maximo 10 MB.</p>
+				<p class="help-block" id="archivoHelp">Formatos permitidos: PDF, JPG, JPEG, PNG. Para foto del jugador use JPG o PNG. Maximo 10 MB.</p>
+				<p class="help-block legajo-camera-help">En el celular, al elegir archivo se abre la camara para tomar la foto del jugador.</p>
 			</div>
 			<div class="legajo-form-field legajo-form-wide">
 				<?php echo CHtml::label('Observacion', 'JugadorDocumento_observacion'); ?>
@@ -136,6 +182,37 @@ Yii::app()->clientScript->registerCss('legajoJugadorCss', '
 		</div>
 	<?php echo CHtml::endForm(); ?>
 </div>
+
+<?php
+Yii::app()->clientScript->registerScript('legajoJugadorFotoCamara', '
+	(function() {
+		var tipo = document.getElementById("JugadorDocumento_tipo");
+		var archivo = document.getElementById("archivo");
+		var help = document.getElementById("archivoHelp");
+		var panel = archivo ? archivo.parentNode : null;
+		if(!tipo || !archivo || !help || !panel)
+			return;
+
+		function actualizarEntradaArchivo() {
+			if(tipo.value === "' . CJavaScript::quote(JugadorDocumento::TIPO_FOTO) . '") {
+				archivo.setAttribute("accept", "image/*");
+				archivo.setAttribute("capture", "environment");
+				help.innerHTML = "Foto del jugador: JPG o PNG. Maximo 10 MB.";
+				panel.className += panel.className.indexOf("legajo-camera-mode") === -1 ? " legajo-camera-mode" : "";
+				return;
+			}
+
+			archivo.setAttribute("accept", ".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png");
+			archivo.removeAttribute("capture");
+			help.innerHTML = "Formatos permitidos: PDF, JPG, JPEG, PNG. Para foto del jugador use JPG o PNG. Maximo 10 MB.";
+			panel.className = panel.className.replace(/\\s*legajo-camera-mode/g, "");
+		}
+
+		tipo.onchange = actualizarEntradaArchivo;
+		actualizarEntradaArchivo();
+	})();
+');
+?>
 
 <div class="legajo-panel">
 	<h2>Documentos cargados</h2>

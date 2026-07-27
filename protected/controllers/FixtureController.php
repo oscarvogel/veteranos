@@ -199,16 +199,7 @@ class FixtureController extends Controller
 	}
 	
 	protected function AsignaPuntos($model){
-		if($model->GolLocal > $model->GolVisitante){
-			$model->PuntosLocal = 3;
-			$model->PuntosVisitante = 0;
-		}elseif($model->GolVisitante > $model->GolLocal){
-			$model->PuntosLocal = 0;
-			$model->PuntosVisitante = 3;
-		}else{
-			$model->PuntosLocal = 1;
-			$model->PuntosVisitante = 1;
-		}
+		$model->asignaPuntosPorResultado();
 	}
 
 

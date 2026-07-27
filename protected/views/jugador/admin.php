@@ -120,6 +120,19 @@ $(document).ready(function() {
 	        ),
 	    array(
 	           'class' => 'editable.EditableColumn',
+	           'name' => 'es_socio',
+	           'value' => '((int)$data->es_socio === 1) ? "Si" : "No"',
+	           'filter' => array('1'=>'Si', '0'=>'No'),
+	           'headerHtmlOptions' => array('style' => 'width: 70px'),
+	           'editable' => array(
+	                  'type'       => 'select',
+	                  'source'     => array(array('value'=>1, 'text'=>'Si'), array('value'=>0, 'text'=>'No')),
+	                  'url'        => $this->createUrl('jugador/Actualiza'),
+	                  'placement'  => 'right',
+	              )               
+	        ),
+	    array(
+	           'class' => 'editable.EditableColumn',
 	           'name' => 'fecha_nacimiento',
 	           'headerHtmlOptions' => array('style' => 'width: 120px'),
 	           'htmlOptions' => array('class' => 'fecha-input-mask'),

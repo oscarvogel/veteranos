@@ -50,12 +50,12 @@ class Jugador extends CActiveRecord
 			array('DNI', 'unique'),
 			array('idEquipo', 'length', 'max'=>10),
 			array('Observacion', 'length', 'max'=>200),
-			array('certificado, firma_lista, fotocopia_dni, dec_jurada', 'safe'),
+			array('certificado, firma_lista, fotocopia_dni, dec_jurada, es_socio', 'safe'),
 			array('fecha_nacimiento', 'required'),
 			array('fecha_nacimiento', 'validarFechaNacimiento'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('idJugador, Nombre, Clase, DNI, idEquipo, Observacion, certificado, firma_lista, fotocopia_dni, dec_jurada, fecha_nacimiento', 'safe', 'on'=>'search'),
+			array('idJugador, Nombre, Clase, DNI, idEquipo, Observacion, certificado, firma_lista, fotocopia_dni, dec_jurada, es_socio, fecha_nacimiento', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -118,12 +118,65 @@ class Jugador extends CActiveRecord
 		return array(
 			'Equipo' => array(self::BELONGS_TO, 'Equipos', 'idEquipo'),
 			'DocumentosLegajo' => array(self::HAS_MANY, 'JugadorDocumento', 'idJugador', 'order'=>'DocumentosLegajo.created_at DESC'),
+			'CuotasSociales' => array(self::HAS_MANY, 'CuotaSocialPago', 'idJugador'),
 		);
 	}
 
 	public function getCantidadDocumentosLegajo()
 	{
 		return (int)JugadorDocumento::model()->countByAttributes(array('idJugador'=>$this->idJugador));
+	}
+
+	public function getFotoLegajo()
+	{
+		return JugadorDocumento::model()->findByAttributes(
+			array('idJugador'=>$this->idJugador, 'tipo'=>JugadorDocumento::TIPO_FOTO),
+			array('order'=>'created_at DESC, idDocumento DESC')
+		);
+	}
+
+	public function getTieneFotoLegajo()
+	{
+		return $this->getFotoLegajo() !== null;
+	}
+
+	public function getTiposFaltantesDocumentacionLegajo($incluirFoto = true)
+	{
+		$faltantes = array();
+
+		foreach(JugadorDocumento::getTiposDocumentacionRequerida() as $tipo) {
+			$campo = JugadorDocumento::getCampoLegacyPorTipo($tipo);
+			if($campo !== null && (int)$this->$campo !== 1)
+				$faltantes[] = $tipo;
+		}
+
+		if($incluirFoto && !$this->getTieneFotoLegajo())
+			$faltantes[] = JugadorDocumento::TIPO_FOTO;
+
+		return $faltantes;
+	}
+
+	public function getFaltantesDocumentacionLegajo($incluirFoto = true)
+	{
+		$faltantes = array();
+		$tipos = JugadorDocumento::getTipos();
+
+		foreach($this->getTiposFaltantesDocumentacionLegajo($incluirFoto) as $tipo)
+			$faltantes[] = isset($tipos[$tipo]) ? $tipos[$tipo] : $tipo;
+
+		return $faltantes;
+	}
+
+	public function getFaltantesDocumentacionLegajoTexto($incluirFoto = true)
+	{
+		$faltantes = $this->getFaltantesDocumentacionLegajo($incluirFoto);
+		return empty($faltantes) ? 'Completo' : implode(', ', $faltantes);
+	}
+
+	public function getPrimerTipoFaltanteDocumentacionLegajo($incluirFoto = true)
+	{
+		$faltantes = $this->getTiposFaltantesDocumentacionLegajo($incluirFoto);
+		return empty($faltantes) ? '' : reset($faltantes);
 	}
 
 	/**
@@ -142,6 +195,7 @@ class Jugador extends CActiveRecord
 			'firma_lista'=>'Lista Firmada',
 			'fotocopia_dni'=>'Fotocopia DNI',
 			'dec_jurada'=>'Declaracion Jurada',
+			'es_socio'=>'Socio',
 			'fecha_nacimiento'=>'Fecha de Nacimiento',
 		);
 	}
@@ -167,6 +221,7 @@ class Jugador extends CActiveRecord
 		$criteria->compare('fotocopia_dni',$this->fotocopia_dni,true);
 		$criteria->compare('fecha_nacimiento',$this->fecha_nacimiento,true);
 		$criteria->compare('dec_jurada',$this->dec_jurada,true);
+		$criteria->compare('es_socio',$this->es_socio);
 
 		return new CActiveDataProvider($this, array(
 			'criteria'=>$criteria,

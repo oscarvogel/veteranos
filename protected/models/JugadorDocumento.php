@@ -9,6 +9,7 @@ class JugadorDocumento extends CActiveRecord
 	const TIPO_CERTIFICADO_SALUD = 'certificado_salud';
 	const TIPO_FIRMA_LISTA = 'firma_lista';
 	const TIPO_DECLARACION_JURADA = 'declaracion_jurada';
+	const TIPO_FOTO = 'foto';
 	const TIPO_ADICIONAL = 'adicional';
 	const MAX_FILE_SIZE = 10485760;
 
@@ -94,8 +95,24 @@ class JugadorDocumento extends CActiveRecord
 			self::TIPO_CERTIFICADO_SALUD => 'Certificado buena salud',
 			self::TIPO_FIRMA_LISTA => 'Lista firmada',
 			self::TIPO_DECLARACION_JURADA => 'Declaracion jurada',
+			self::TIPO_FOTO => 'Foto jugador',
 			self::TIPO_ADICIONAL => 'Adicional',
 		);
+	}
+
+	public static function getTiposDocumentacionRequerida()
+	{
+		return array(
+			self::TIPO_DNI,
+			self::TIPO_CERTIFICADO_SALUD,
+			self::TIPO_FIRMA_LISTA,
+			self::TIPO_DECLARACION_JURADA,
+		);
+	}
+
+	public static function getTiposImagen()
+	{
+		return array(self::TIPO_FOTO);
 	}
 
 	public function getTipoLabel()
@@ -109,10 +126,23 @@ class JugadorDocumento extends CActiveRecord
 		return array('pdf', 'jpg', 'jpeg', 'png');
 	}
 
+	public static function getExtensionesImagenPermitidas()
+	{
+		return array('jpg', 'jpeg', 'png');
+	}
+
 	public static function getMimesPermitidos()
 	{
 		return array(
 			'application/pdf',
+			'image/jpeg',
+			'image/png',
+		);
+	}
+
+	public static function getMimesImagenPermitidos()
+	{
+		return array(
 			'image/jpeg',
 			'image/png',
 		);
@@ -123,6 +153,11 @@ class JugadorDocumento extends CActiveRecord
 		return in_array(strtolower((string)$extension), self::getExtensionesPermitidas(), true);
 	}
 
+	public static function esExtensionImagenPermitida($extension)
+	{
+		return in_array(strtolower((string)$extension), self::getExtensionesImagenPermitidas(), true);
+	}
+
 	public static function esMimePermitido($mime)
 	{
 		$mime = strtolower(trim((string)$mime));
@@ -130,6 +165,20 @@ class JugadorDocumento extends CActiveRecord
 			$mime = trim(substr($mime, 0, strpos($mime, ';')));
 
 		return in_array($mime, self::getMimesPermitidos(), true);
+	}
+
+	public static function esMimeImagenPermitido($mime)
+	{
+		$mime = strtolower(trim((string)$mime));
+		if(strpos($mime, ';') !== false)
+			$mime = trim(substr($mime, 0, strpos($mime, ';')));
+
+		return in_array($mime, self::getMimesImagenPermitidos(), true);
+	}
+
+	public static function esTipoImagen($tipo)
+	{
+		return in_array($tipo, self::getTiposImagen(), true);
 	}
 
 	public static function getCampoLegacyPorTipo($tipo)

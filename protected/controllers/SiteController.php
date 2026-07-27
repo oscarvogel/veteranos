@@ -40,16 +40,159 @@ class SiteController extends Controller
 				'pageSize'=>6,
 			),
 		));
+		$criteria = new CDbCriteria;
+		$criteria->condition = "Estado=:estado";
+		$criteria->params = array(':estado'=>'I');
+		$criteria->order = 'idTorneo DESC';
+		$torneos = Torneo::model()->findAll($criteria);
+		$posicionesTorneos = array();
+		foreach($torneos as $torneo){
+			$fixture = new Fixture;
+			$posicionesTorneos[] = array(
+				'torneo'=>$torneo,
+				'posiciones'=>$fixture->TablaPosiciones($torneo->idTorneo),
+			);
+		}
+
 		$this->render('index',array(
 			'dataProvider'=>$dataProvider,
+			'posicionesTorneos'=>$posicionesTorneos,
 		));
 
 	}
 
+	public function actionFixture($idTorneo = null, $fecha = null)
+	{
+		$criteria = new CDbCriteria;
+		$criteria->condition = "Estado in ('I','A')";
+		$criteria->order = 'Inicio DESC, idTorneo DESC';
+		$torneosDisponibles = Torneo::model()->findAll($criteria);
+
+		if (empty($torneosDisponibles)) {
+			throw new CHttpException(404, 'No hay torneos iniciados o activos en este momento.');
+		}
+
+		$mapaTorneos = array();
+		foreach ($torneosDisponibles as $t) {
+			$mapaTorneos[(int)$t->idTorneo] = $t->Nombre;
+		}
+
+		if ($idTorneo === null || !isset($mapaTorneos[(int)$idTorneo])) {
+			$idTorneo = (int)$torneosDisponibles[0]->idTorneo;
+		}
+
+		$torneo = Torneo::model()->findByPk($idTorneo);
+		if ($torneo === null) {
+			throw new CHttpException(404, 'El torneo solicitado no existe.');
+		}
+
+		$this->pageTitle = 'Fixture ' . $torneo->Nombre . ' - ' . Yii::app()->name;
+
+		$partidos = Fixture::model()->ConsultaFixture($idTorneo);
+
+		// Fechas disponibles para este torneo
+		$fechasDisponibles = array();
+		foreach ($partidos as $p) {
+			$n = (int)$p->NFecha;
+			if (!in_array($n, $fechasDisponibles, true)) {
+				$fechasDisponibles[] = $n;
+			}
+		}
+		sort($fechasDisponibles);
+
+		$fechaSeleccionada = null;
+		if ($fecha !== null && ctype_digit((string)$fecha)) {
+			$fecha = (int)$fecha;
+			if (in_array($fecha, $fechasDisponibles, true)) {
+				$fechaSeleccionada = $fecha;
+			}
+		}
+
+		if ($fechaSeleccionada !== null) {
+			$filtrados = array();
+			foreach ($partidos as $p) {
+				if ((int)$p->NFecha === $fechaSeleccionada) {
+					$filtrados[] = $p;
+				}
+			}
+			$partidos = $filtrados;
+		}
+
+		$this->render('fixture', array(
+			'torneo' => $torneo,
+			'torneosDisponibles' => $mapaTorneos,
+			'partidos' => $partidos,
+			'fechasDisponibles' => $fechasDisponibles,
+			'fechaSeleccionada' => $fechaSeleccionada,
+			'idTorneo' => $idTorneo,
+		));
+	}
+
+	public function actionFixturePdf($idTorneo, $fecha = null)
+	{
+		$torneo = Torneo::model()->findByPk((int)$idTorneo);
+		if ($torneo === null) {
+			throw new CHttpException(404, 'El torneo solicitado no existe.');
+		}
+		if (!in_array($torneo->Estado, array('I', 'A'), true)) {
+			throw new CHttpException(404, 'El torneo no está iniciado ni activo.');
+		}
+
+		$partidos = Fixture::model()->ConsultaFixture((int)$idTorneo);
+		if (empty($partidos)) {
+			throw new CHttpException(404, 'No hay partidos cargados para este torneo.');
+		}
+
+		$fechaSeleccionada = null;
+		if ($fecha !== null && ctype_digit((string)$fecha)) {
+			$fechaSeleccionada = (int)$fecha;
+		}
+
+		if ($fechaSeleccionada !== null) {
+			$filtrados = array();
+			foreach ($partidos as $p) {
+				if ((int)$p->NFecha === $fechaSeleccionada) {
+					$filtrados[] = $p;
+				}
+			}
+			if (empty($filtrados)) {
+				throw new CHttpException(404, 'No hay partidos cargados para la fecha solicitada.');
+			}
+			$partidos = $filtrados;
+		}
+
+		$slug = preg_replace('/[^a-z0-9]+/i', '_', strtolower($torneo->Nombre));
+		$nombreArchivo = 'fixture_' . $slug
+			. ($fechaSeleccionada !== null ? '_fecha_' . $fechaSeleccionada : '')
+			. '.pdf';
+
+		$pdf = Yii::app()->ePdf->mpdf('', 'A4', 0, '', 12, 12, 14, 14, 9, 9, 'P');
+		$titulo = 'Fixture ' . $torneo->Nombre
+			. ($fechaSeleccionada !== null ? ' - Fecha ' . $fechaSeleccionada : '');
+		$pdf->SetTitle($titulo);
+		$pdf->SetAuthor(Yii::app()->name);
+
+		$html = $this->renderPartial('fixture_pdf', array(
+			'torneo' => $torneo,
+			'partidos' => $partidos,
+			'fechaSeleccionada' => $fechaSeleccionada,
+		), true);
+
+		$pdf->WriteHTML($html);
+		$pdf->Output($nombreArchivo, 'I');
+		Yii::app()->end();
+	}
+
 	public function actionFixtureSuper()
 	{
-		$this->pageTitle='Fixture Super Veteranos - '.Yii::app()->name;
-		$this->render('fixtureSuper');
+		$criteria = new CDbCriteria;
+		$criteria->condition = "Estado in ('I','A') and Nombre like '%Super Veteranos%'";
+		$criteria->order = 'Inicio DESC, idTorneo DESC';
+		$torneo = Torneo::model()->find($criteria);
+		if ($torneo === null) {
+			throw new CHttpException(404, 'No hay Super Veteranos iniciado o activo en este momento.');
+		}
+		$this->redirect(array('site/fixture', 'idTorneo' => (int)$torneo->idTorneo));
 	}
 
 	/**

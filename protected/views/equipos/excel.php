@@ -1,4 +1,17 @@
 <?php
+if (!function_exists('listaBuenaFeExcelFechaNacimiento')) {
+function listaBuenaFeExcelFechaNacimiento($fecha) {
+	$fecha = trim((string)$fecha);
+	if ($fecha === '') {
+		return '';
+	}
+	if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $fecha, $matches)) {
+		return $matches[3] . '/' . $matches[2] . '/' . $matches[1];
+	}
+	return $fecha;
+}
+}
+
 if(isset($jugadores)){
 	$num = 1;
 	?>
@@ -8,7 +21,7 @@ if(isset($jugadores)){
 			<th>Nº</th>
 			<th>Ing</th>
 			<th>Nombre</th>
-			<th>Clase</th>
+			<th>Fecha de nacimiento</th>
 			<th>DNI</th>
 			<th>Observaciones</th>
 			<th>Certificado</th>
@@ -22,7 +35,7 @@ if(isset($jugadores)){
 			<td><?php echo $num++;?></td>
 			<td></td>
 			<td><?php echo htmlentities($jugador->Nombre, ENT_QUOTES,'UTF-8');?></td>
-			<td><?php echo CHtml::encode($jugador->Clase);?></td>
+			<td><?php echo CHtml::encode(listaBuenaFeExcelFechaNacimiento($jugador->fecha_nacimiento));?></td>
 			<td><?php echo CHtml::encode($jugador->DNI);?></td>
 			<td><?php echo CHtml::encode($jugador->Observacion);?></td>
 			<td><?php echo $jugador->certificado ? 'SI' : 'NO';?></td>

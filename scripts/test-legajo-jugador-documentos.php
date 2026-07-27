@@ -31,10 +31,12 @@ foreach(array('idDocumento', 'idJugador', 'tipo', 'titulo', 'archivo_original', 
 }
 
 assertLegajo(class_exists('JugadorDocumento'), 'Debe existir el modelo JugadorDocumento');
-assertSameLegajo(array('dni', 'certificado_salud', 'firma_lista', 'declaracion_jurada', 'adicional'), array_keys(JugadorDocumento::getTipos()), 'Los tipos de legajo deben ser flexibles y conocidos');
+assertSameLegajo(array('dni', 'certificado_salud', 'firma_lista', 'declaracion_jurada', 'foto', 'adicional'), array_keys(JugadorDocumento::getTipos()), 'Los tipos de legajo deben ser flexibles y conocidos');
 assertLegajo(JugadorDocumento::esExtensionPermitida('pdf'), 'Debe permitir PDF');
 assertLegajo(JugadorDocumento::esExtensionPermitida('jpg'), 'Debe permitir JPG');
 assertLegajo(JugadorDocumento::esMimePermitido('image/png'), 'Debe permitir PNG por MIME');
+assertLegajo(JugadorDocumento::esExtensionImagenPermitida('jpg'), 'Debe permitir JPG para foto');
+assertLegajo(!JugadorDocumento::esExtensionImagenPermitida('pdf'), 'No debe permitir PDF para foto');
 assertLegajo(!JugadorDocumento::esExtensionPermitida('php'), 'No debe permitir PHP');
 assertLegajo(!JugadorDocumento::esMimePermitido('application/x-php'), 'No debe permitir MIME PHP');
 assertSameLegajo('fotocopia_dni', JugadorDocumento::getCampoLegacyPorTipo('dni'), 'DNI sincroniza fotocopia_dni');
@@ -52,11 +54,11 @@ $storedName = JugadorDocumento::generarNombreGuardado($jugador->idJugador, 'dni'
 assertLegajo(preg_match('/^jugador-' . preg_quote($jugador->idJugador, '/') . '-dni-[0-9]{14}-[a-f0-9]{8}\.pdf$/', $storedName) === 1, 'El nombre guardado debe ser estable, privado y conservar extension permitida');
 
 $controller = new JugadorController('jugador');
-foreach(array('actionLegajo', 'actionSubirDocumento', 'actionDescargarDocumento', 'actionEliminarDocumento') as $method) {
+foreach(array('actionLegajo', 'actionSubirDocumento', 'actionDescargarDocumento', 'actionVerDocumento', 'actionEliminarDocumento') as $method) {
     assertLegajo(method_exists($controller, $method), 'JugadorController debe implementar ' . $method);
 }
 
-foreach(array('action_jugador_legajo', 'action_jugador_subirDocumento', 'action_jugador_descargarDocumento', 'action_jugador_eliminarDocumento') as $operation) {
+foreach(array('action_jugador_legajo', 'action_jugador_subirDocumento', 'action_jugador_descargarDocumento', 'action_jugador_verDocumento', 'action_jugador_eliminarDocumento') as $operation) {
     $exists = (int)$db->createCommand('SELECT COUNT(*) FROM cruge_authitem WHERE name = :name')->queryScalar(array(':name'=>$operation));
     assertLegajo($exists === 1, 'Debe existir permiso Cruge ' . $operation);
     $delegado = (int)$db->createCommand('SELECT COUNT(*) FROM cruge_authitemchild WHERE parent = :parent AND child = :child')->queryScalar(array(':parent'=>'delegado', ':child'=>$operation));

@@ -175,6 +175,10 @@
                 <?php echo $form->checkBox($model,'dec_jurada'); ?>
                 <span>Declaracion jurada</span>
             </label>
+            <label class="jugador-check">
+                <?php echo $form->checkBox($model,'es_socio'); ?>
+                <span>Socio</span>
+            </label>
         </div>
     </div>
 
