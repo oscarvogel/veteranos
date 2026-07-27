@@ -136,10 +136,10 @@ $tieneEquipo = (int)$user->idEquipo > 0 && $user->equipo !== null;
                                 <?php if ($esLibre): ?>—
                                 <?php elseif ($pred->puntos === null): ?>
                                     <span class="label label-default">—</span>
-                                <?php elseif ((int)$pred->puntos === 3): ?>
-                                    <span class="label label-success">3 exacto</span>
-                                <?php elseif ((int)$pred->puntos === 1): ?>
-                                    <span class="label label-warning">1 signo</span>
+                                <?php elseif ((int)$pred->puntos === ProdeUsuario::PUNTOS_EXACTO): ?>
+                                    <span class="label label-success"><?php echo (int)ProdeUsuario::PUNTOS_EXACTO; ?> exacto</span>
+                                <?php elseif ((int)$pred->puntos === ProdeUsuario::PUNTOS_SIGNO): ?>
+                                    <span class="label label-warning"><?php echo (int)ProdeUsuario::PUNTOS_SIGNO; ?> signo</span>
                                 <?php else: ?>
                                     <span class="label label-danger">0</span>
                                 <?php endif; ?>

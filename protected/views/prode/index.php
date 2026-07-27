@@ -18,7 +18,7 @@
     <div class="prode-features">
         <div class="prode-feature">
             <h3>🎯 Pronostica</h3>
-            <p>Cargá el resultado exacto de cada partido. Si acertás el score, suman 3 puntos. Si solo el signo, 1 punto.</p>
+            <p>Cargá el resultado exacto de cada partido. Si acertás el score, suman <?php echo (int)ProdeUsuario::PUNTOS_EXACTO; ?> puntos. Si solo el signo, <?php echo (int)ProdeUsuario::PUNTOS_SIGNO; ?> puntos.</p>
         </div>
         <div class="prode-feature">
             <h3>🏆 Sumá puntos</h3>

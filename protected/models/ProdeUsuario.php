@@ -16,8 +16,8 @@
  */
 class ProdeUsuario extends CActiveRecord
 {
-	const PUNTOS_EXACTO = 3;
-	const PUNTOS_SIGNO = 1;
+	const PUNTOS_EXACTO = 6;
+	const PUNTOS_SIGNO = 3;
 
 	public static function model($className=__CLASS__)
 	{

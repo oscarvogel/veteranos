@@ -4,7 +4,7 @@
     <div class="prode-card">
         <p><a href="<?php echo CHtml::normalizeUrl(array('prode/panel')); ?>">&larr; Volver a mi panel</a></p>
         <h1>Pronostico: <?php echo CHtml::encode($torneo->Nombre); ?> · Fecha <?php echo (int)$fecha; ?></h1>
-        <p class="lead">Cargá tu pronostico. <strong>3 puntos</strong> si acert&aacute;s el resultado exacto, <strong>1 punto</strong> si solo acert&aacute;s el signo (ganador/empate).</p>
+        <p class="lead">Cargá tu pronostico. <strong><?php echo (int)ProdeUsuario::PUNTOS_EXACTO; ?> puntos</strong> si acert&aacute;s el resultado exacto, <strong><?php echo (int)ProdeUsuario::PUNTOS_SIGNO; ?> puntos</strong> si solo acert&aacute;s el signo (ganador/empate).</p>
 
         <?php if ($mensaje): ?>
             <div class="alert alert-success"><?php echo CHtml::encode($mensaje); ?></div>
