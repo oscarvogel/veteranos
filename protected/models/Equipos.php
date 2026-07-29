@@ -42,15 +42,16 @@ class Equipos extends CActiveRecord
 		// will receive user inputs.
 		return array(
 			array('Nombre, Delegado', 'required'),
-            array('idUsuario', 'numerical', 'integerOnly'=>true),
+			array('idUsuario', 'numerical', 'integerOnly'=>true),
 			array('Nombre, Delegado, DelegadoSuplente, Camiseta, CamisetaSuplente', 'length', 'max'=>50),
+			array('Tecnico, AyudanteTecnico', 'length', 'max'=>100),
 			array('idCategoria, Cancha', 'length', 'max'=>10),
 			array('Telefono', 'length', 'max'=>100),
 			array('Correo', 'length', 'max'=>255),
 			array('Correo', 'email'),
 			// The following rule is used by search().
 			// Please remove those attributes that should not be searched.
-			array('idEquipo, Nombre, Delegado, DelegadoSuplente, Camiseta, CamisetaSuplente, Cancha, idCategoria, Correo, Telefono, idEquipo', 'safe', 'on'=>'search'),
+			array('idEquipo, Nombre, Delegado, DelegadoSuplente, Tecnico, AyudanteTecnico, Camiseta, CamisetaSuplente, Cancha, idCategoria, Correo, Telefono, idEquipo', 'safe', 'on'=>'search'),
 		);
 	}
 
@@ -83,6 +84,8 @@ class Equipos extends CActiveRecord
 			'Delegado' => 'Delegado',
 			'idCategoria' => 'Id Categoria',
 			'DelegadoSuplente' => 'Delegado Suplente',
+			'Tecnico' => 'Técnico',
+			'AyudanteTecnico' => 'Ayudante de técnico',
             'Camiseta' => 'Camiseta',
             'CamisetaSuplente' => 'Camiseta Suplente',
             'Cancha' => 'Cancha',

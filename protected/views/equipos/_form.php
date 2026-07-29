@@ -22,6 +22,22 @@
 		<?php echo $form->textFieldRow($model,'DelegadoSuplente',array('size'=>50,'maxlength'=>50)); ?>
 	</div>
 
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Tecnico', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'Tecnico', array('class'=>'form-control', 'maxlength'=>100)); ?>
+			<?php echo CHtml::error($model, 'Tecnico', array('class'=>'help-block')); ?>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'AyudanteTecnico', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'AyudanteTecnico', array('class'=>'form-control', 'maxlength'=>100)); ?>
+			<?php echo CHtml::error($model, 'AyudanteTecnico', array('class'=>'help-block')); ?>
+		</div>
+	</div>
+
 	<div class="row">
 		<?php echo $form->textFieldRow($model,'Camiseta',array('size'=>50,'maxlength'=>50)); ?>
 	</div>
