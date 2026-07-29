@@ -14,6 +14,7 @@ frontend/.env.*
 # Local agent/workspace metadata
 .agents/
 .codex/
+.worktrees/
 
 # Dependency folders
 /vendor/
