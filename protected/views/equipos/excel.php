@@ -14,8 +14,20 @@ function listaBuenaFeExcelFechaNacimiento($fecha) {
 
 if(isset($jugadores)){
 	$num = 1;
+	$tecnico = isset($equipo->Tecnico) ? $equipo->Tecnico : '';
+	$ayudanteTecnico = isset($equipo->AyudanteTecnico) ? $equipo->AyudanteTecnico : '';
 	?>
 	<h5>ASOCIACION DE FUTBOL DE VETERANOS, SUPER Y SENIOR "LDOR GRAL SAN MARTIN"</h5>
+	<table border="1">
+		<tr>
+			<th>T&eacute;cnico</th>
+			<td><?php echo CHtml::encode($tecnico); ?></td>
+		</tr>
+		<tr>
+			<th>Ayudante de t&eacute;cnico</th>
+			<td><?php echo CHtml::encode($ayudanteTecnico); ?></td>
+		</tr>
+	</table>
 	<table class="table" border="1">
 		<thead>
 			<th>Nº</th>

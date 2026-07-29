@@ -12,6 +12,8 @@ else
 
 $delegadoTitular = isset($equipo->Delegado) ? $equipo->Delegado : '';
 $delegadoSuplente = isset($equipo->DelegadoSuplente) ? $equipo->DelegadoSuplente : '';
+$tecnico = isset($equipo->Tecnico) ? $equipo->Tecnico : '';
+$ayudanteTecnico = isset($equipo->AyudanteTecnico) ? $equipo->AyudanteTecnico : '';
 $runtimePath = Yii::getPathOfAlias('application.runtime');
 
 if (!function_exists('listaBuenaFeLogo')) {
@@ -313,11 +315,11 @@ $logoAsociacion = listaBuenaFeLogo('lista-buena-fe-asociacion.jpg', $logoAsociac
         <td class="right">Suplente: <?php echo CHtml::encode($delegadoSuplente); ?></td>
     </tr>
     <tr>
-        <td>D.T. ....................................................</td>
+        <td>T&eacute;cnico: <?php echo CHtml::encode($tecnico); ?></td>
         <td class="right">Firma:........................................</td>
     </tr>
     <tr>
-        <td>Ayudante de Campo: ......................................</td>
+        <td>Ayudante de t&eacute;cnico: <?php echo CHtml::encode($ayudanteTecnico); ?></td>
         <td class="right">Firma:........................................</td>
     </tr>
     <tr>
