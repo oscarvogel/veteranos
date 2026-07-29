@@ -1,25 +1,36 @@
 <div class="form">
 
-<?php $form=$this->beginWidget('bootstrap.widgets.TbActiveForm', array(
+<?php echo CHtml::beginForm('', 'post', array(
 	'id'=>'equipos-form',
-	'type'=>'horizontal',
-	'enableAjaxValidation'=>false,
+	'class'=>'form-horizontal',
 )); ?>
 
 	<p class="note">Campos con <span class="required">* </span>son requeridos.</p>
 
-	<?php echo $form->errorSummary($model); ?>
+	<?php echo CHtml::errorSummary($model); ?>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'Nombre',array('size'=>50,'maxlength'=>50)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Nombre', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'Nombre', array('class'=>'form-control', 'maxlength'=>50)); ?>
+			<?php echo CHtml::error($model, 'Nombre', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'Delegado',array('size'=>50,'maxlength'=>50)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Delegado', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'Delegado', array('class'=>'form-control', 'maxlength'=>50)); ?>
+			<?php echo CHtml::error($model, 'Delegado', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'DelegadoSuplente',array('size'=>50,'maxlength'=>50)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'DelegadoSuplente', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'DelegadoSuplente', array('class'=>'form-control', 'maxlength'=>50)); ?>
+			<?php echo CHtml::error($model, 'DelegadoSuplente', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
 	<div class="form-group">
@@ -38,33 +49,61 @@
 		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'Camiseta',array('size'=>50,'maxlength'=>50)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Camiseta', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'Camiseta', array('class'=>'form-control', 'maxlength'=>50)); ?>
+			<?php echo CHtml::error($model, 'Camiseta', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'CamisetaSuplente',array('size'=>50,'maxlength'=>50)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'CamisetaSuplente', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'CamisetaSuplente', array('class'=>'form-control', 'maxlength'=>50)); ?>
+			<?php echo CHtml::error($model, 'CamisetaSuplente', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'Correo',array('size'=>50,'maxlength'=>255)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Correo', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'Correo', array('class'=>'form-control', 'maxlength'=>255)); ?>
+			<?php echo CHtml::error($model, 'Correo', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'Telefono',array('size'=>50,'maxlength'=>100)); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Telefono', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'Telefono', array('class'=>'form-control', 'maxlength'=>100)); ?>
+			<?php echo CHtml::error($model, 'Telefono', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->dropDownListRow($model,'Cancha',Canchas::model()->getListCancha()); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'Cancha', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeDropDownList($model, 'Cancha', Canchas::model()->getListCancha(), array('class'=>'form-control')); ?>
+			<?php echo CHtml::error($model, 'Cancha', array('class'=>'help-block')); ?>
+		</div>
 	</div>
 
-	<div class="row">
-		<?php echo $form->dropDownListRow($model,'idCategoria',Categorias::model()->getListCategorias()); ?>
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'idCategoria', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeDropDownList($model, 'idCategoria', Categorias::model()->getListCategorias(), array('class'=>'form-control')); ?>
+			<?php echo CHtml::error($model, 'idCategoria', array('class'=>'help-block')); ?>
+		</div>
 	</div>
     
-	<div class="row">
-		<?php echo $form->textFieldRow($model,'idUsuario'); ?>
-	</div>    
+	<div class="form-group">
+		<?php echo CHtml::activeLabelEx($model, 'idUsuario', array('class'=>'control-label col-sm-3')); ?>
+		<div class="col-sm-9">
+			<?php echo CHtml::activeTextField($model, 'idUsuario', array('class'=>'form-control')); ?>
+			<?php echo CHtml::error($model, 'idUsuario', array('class'=>'help-block')); ?>
+		</div>
+	</div>
 	<?php
 	$jugadorFormConfig = array(
       'elements'=>array(
@@ -102,10 +141,12 @@
         'data' => $jugador->findAll(array('order'=>'Nombre','condition'=>'idEquipo=:idEquipo', 'params'=>array(':idEquipo'=>$model->idEquipo))),
     ));
 	?>
-	<div class="row buttons">
-		<?php $this->widget('bootstrap.widgets.TbButton', array('buttonType'=>'submit', 'label' => $model->isNewRecord ? 'Crear' : 'Guardar')); ?>
+	<div class="form-group">
+		<div class="col-sm-offset-3 col-sm-9">
+			<?php echo CHtml::submitButton($model->isNewRecord ? 'Crear' : 'Guardar', array('class'=>'btn btn-primary')); ?>
+		</div>
 	</div>
 
-<?php $this->endWidget(); ?>
+<?php echo CHtml::endForm(); ?>
 
 </div><!-- form -->
