@@ -32,8 +32,7 @@ La confirmación vuelve a ejecutar el preview y valida la firma antes de abrir l
       "equipo": { "nombre": "MANDIYU SENIOR" },
       "rival": { "nombre": "CLUB SAN MIGUEL SENIOR" },
       "resultado": {
-        "goles_equipo": 3,
-        "goles_rival": 0
+        "goles_equipo": 3
       },
       "jugadores": [
         {
@@ -69,3 +68,18 @@ Para cada jugador incluido en un partido confirmado:
 - Las rojas que ya tengan motivo o hasta-fecha (sanción administrada) se preservan.
 
 Por lo tanto, reenviar el mismo lote no vuelve a sumar goles ni tarjetas.
+
+
+## Resultado por planilla individual
+
+Las planillas físicas informan el resultado desde la perspectiva del equipo de esa hoja. Por eso `goles_equipo` es obligatorio y `goles_rival` es opcional.
+
+Si llegan las dos planillas del mismo partido, el preview las consolida sobre el mismo `idFixture`:
+
+- planilla del local -> completa `GolLocal`
+- planilla del visitante -> completa `GolVisitante`
+- si ambas informan además `goles_rival`, los valores deben coincidir
+- si existe una contradicción entre las dos hojas, la importación queda bloqueada
+- si al finalizar el lote falta uno de los dos lados del resultado, el preview queda incompleto y no puede confirmarse
+
+Esto evita inventar el resultado del rival cuando la hoja escaneada no lo informa de forma explícita.
