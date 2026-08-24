@@ -49,6 +49,7 @@ class PlanillaImportModel
         }
 
         if (count($errors) === 0) {
+            $fixtureIndex = [];
             foreach ($payload['partidos'] as $index => $partido) {
                 if (!is_array($partido)) {
                     $errors[] = $this->problem("partidos.$index", 'El partido debe ser un objeto.');
@@ -57,7 +58,19 @@ class PlanillaImportModel
                 $path = "partidos.$index";
                 $resolvedMatch = $this->resolvePartido($resolved['torneo'], $partido, $path, $errors, $warnings);
                 if ($resolvedMatch) {
-                    $resolved['partidos'][] = $resolvedMatch;
+                    $fixtureId = (int)$resolvedMatch['idFixture'];
+                    if (isset($fixtureIndex[$fixtureId])) {
+                        $pos = $fixtureIndex[$fixtureId];
+                        $resolved['partidos'][$pos] = $this->mergeResolvedMatch(
+                            $resolved['partidos'][$pos],
+                            $resolvedMatch,
+                            $path,
+                            $errors
+                        );
+                    } else {
+                        $fixtureIndex[$fixtureId] = count($resolved['partidos']);
+                        $resolved['partidos'][] = $resolvedMatch;
+                    }
                 }
             }
         }
@@ -289,6 +302,48 @@ class PlanillaImportModel
             'GolVisitante' => $isLocal ? $golesRival : $golesEquipo,
             'jugadores' => $jugadores,
         ];
+    }
+
+    private function mergeResolvedMatch(array $existing, array $incoming, $path, array &$errors)
+    {
+        if (
+            (int)$existing['GolLocal'] !== (int)$incoming['GolLocal'] ||
+            (int)$existing['GolVisitante'] !== (int)$incoming['GolVisitante']
+        ) {
+            $errors[] = $this->problem(
+                $path . '.resultado',
+                'El mismo fixture aparece con resultados contradictorios entre planillas.'
+            );
+            return $existing;
+        }
+
+        $players = [];
+        foreach ($existing['jugadores'] as $player) {
+            $players[(int)$player['idJugador']] = $player;
+        }
+
+        foreach ($incoming['jugadores'] as $player) {
+            $playerId = (int)$player['idJugador'];
+            if (!isset($players[$playerId])) {
+                $players[$playerId] = $player;
+                continue;
+            }
+
+            $current = $players[$playerId];
+            if (
+                (int)$current['goles'] !== (int)$player['goles'] ||
+                (int)$current['amarillas'] !== (int)$player['amarillas'] ||
+                (int)$current['rojas'] !== (int)$player['rojas']
+            ) {
+                $errors[] = $this->problem(
+                    $path . '.jugadores',
+                    'El mismo jugador aparece con estadísticas contradictorias para el mismo fixture.'
+                );
+            }
+        }
+
+        $existing['jugadores'] = array_values($players);
+        return $existing;
     }
 
     private function resolveEquipo(array $input)
