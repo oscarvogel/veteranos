@@ -75,6 +75,15 @@ class PlanillaImportModel
             }
         }
 
+        foreach ($resolved['partidos'] as $rIndex => $resolvedMatch) {
+            if ($resolvedMatch['GolLocal'] === null || $resolvedMatch['GolVisitante'] === null) {
+                $errors[] = $this->problem(
+                    "resolved.partidos.$rIndex.resultado",
+                    'Resultado incompleto: falta la planilla del otro equipo o informar goles_rival.'
+                );
+            }
+        }
+
         $canConfirm = count($errors) === 0 && !$this->hasUnreviewedWarnings($warnings);
         $token = null;
         if ($canConfirm && $this->secret) {
@@ -232,13 +241,13 @@ class PlanillaImportModel
         }
 
         $resultado = isset($input['resultado']) && is_array($input['resultado']) ? $input['resultado'] : [];
-        if (!isset($resultado['goles_equipo']) || !isset($resultado['goles_rival'])) {
-            $errors[] = $this->problem("$path.resultado", 'Se requieren goles_equipo y goles_rival.');
+        if (!isset($resultado['goles_equipo'])) {
+            $errors[] = $this->problem("$path.resultado", 'Se requiere goles_equipo.');
             return null;
         }
         $golesEquipo = (int)$resultado['goles_equipo'];
-        $golesRival = (int)$resultado['goles_rival'];
-        if ($golesEquipo < 0 || $golesRival < 0) {
+        $golesRival = isset($resultado['goles_rival']) ? (int)$resultado['goles_rival'] : null;
+        if ($golesEquipo < 0 || ($golesRival !== null && $golesRival < 0)) {
             $errors[] = $this->problem("$path.resultado", 'Los goles no pueden ser negativos.');
             return null;
         }
@@ -306,15 +315,21 @@ class PlanillaImportModel
 
     private function mergeResolvedMatch(array $existing, array $incoming, $path, array &$errors)
     {
-        if (
-            (int)$existing['GolLocal'] !== (int)$incoming['GolLocal'] ||
-            (int)$existing['GolVisitante'] !== (int)$incoming['GolVisitante']
-        ) {
-            $errors[] = $this->problem(
-                $path . '.resultado',
-                'El mismo fixture aparece con resultados contradictorios entre planillas.'
-            );
-            return $existing;
+        foreach (['GolLocal', 'GolVisitante'] as $scoreKey) {
+            if (
+                $existing[$scoreKey] !== null &&
+                $incoming[$scoreKey] !== null &&
+                (int)$existing[$scoreKey] !== (int)$incoming[$scoreKey]
+            ) {
+                $errors[] = $this->problem(
+                    $path . '.resultado',
+                    'El mismo fixture aparece con resultados contradictorios entre planillas.'
+                );
+                return $existing;
+            }
+            if ($existing[$scoreKey] === null && $incoming[$scoreKey] !== null) {
+                $existing[$scoreKey] = (int)$incoming[$scoreKey];
+            }
         }
 
         $players = [];
