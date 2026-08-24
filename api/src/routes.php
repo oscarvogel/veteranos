@@ -18,4 +18,5 @@ require __DIR__ . '/../app/route/posiciones_route.php';
 require __DIR__ . '/../app/route/ingresos_route.php';
 require __DIR__ . '/../app/route/egresos_route.php';
 require __DIR__ . '/../app/route/modern_api_route.php';
+require __DIR__ . '/../app/route/planillas_import_route.php';
     
